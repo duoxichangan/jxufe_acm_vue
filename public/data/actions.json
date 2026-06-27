@@ -707,6 +707,32 @@
       ]
   },
   {
+      "slug": "2026-5-17-ICPC南昌",
+      "title": "ICPC南昌：银牌 *1",
+      "date": "2026-5-17",
+      "isTop": false,
+      "summary": "豫章故郡，洪都新府！",
+      "subtitle": "落霞与孤鹜齐飞，秋水共长天一色",
+      "blocks": [
+          {
+              "type": "text",
+              "paras": [
+                  "本次2026年ICPC全国邀请赛（南昌）中我院派出一支队伍参赛。由李鑫、彭俊杰、肖俊杰组成的队伍（教练：李季；学生教练：曾握坤）斩获银牌。"
+              ]
+          },
+          {
+              "type": "images",
+              "items": [
+                  {
+                      "src": "https://pic1.imgdb.cn/item/6a3fbbe72546dff76d1e2964.jpg",
+                      "alt": "获奖团队合影",
+                      "caption": "获奖团队合影"
+                  }
+              ]
+          }
+      ]
+  },
+  {
     "slug": "2026-5-21-ccpc秦皇岛",
     "title": "CCPC秦皇岛：银牌 *4",
     "date": "2026-5-21",
