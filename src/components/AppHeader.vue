@@ -94,6 +94,7 @@ header.scrolled {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
 }
 .logo-mark {
   width: 42px;
@@ -170,6 +171,7 @@ nav a.router-link-active::after {
 /* ---- 汉堡按钮 ---- */
 .menu-toggle {
   display: none;
+  flex-shrink: 0;
   background: none;
   border: none;
   padding: 10px;
@@ -243,7 +245,13 @@ header.menu-open .hamburger-icon {
 
 @media (max-width: 576px) {
   .logo-title { font-size: 0.8rem; }
+  .logo-sub { font-size: 0.6rem; }
   .logo-mark { width: 32px; height: 32px; }
+  .logo-text {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
   .bar { padding: 0 var(--space-sm); }
   nav a { font-size: 1.05rem; padding: 12px 20px; }
 }

@@ -260,7 +260,7 @@ footer {
   }
   .footer-nav ul {
     grid-template-columns: 1fr 1fr;
-    text-align: left;
+    text-align: center;
     max-width: 280px;
     margin: 0 auto;
   }
