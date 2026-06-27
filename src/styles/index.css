@@ -1,0 +1,3 @@
+/* 全局样式入口：先令牌，后基础。页面样式在各组件内 scoped。 */
+@import './tokens.css';
+@import './base.css';

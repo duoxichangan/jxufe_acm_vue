@@ -1,0 +1,70 @@
+{
+  "official": [
+    {
+      "name": "江西财经大学计算机协会",
+      "icon": "/images/links/ca_logo.png",
+      "desc": "计算机协会是面向新手小白教学的，激起学计算机的兴趣，教会大家如何学好计算机，还会涉及一些AI、脚本、插件等实用的电脑小技巧。计协分为5个部门宣传部、维修部、软件部、量化部、办公室，但教学是统一教学，所以在这你会学到基础但实用的计算机技巧。由于是面向小白教学，所以会带大家一步一步学好计算机。跟上计协的教学，期末高分so easy。来加入计协，让你感受什么是科技的力量。",
+      "qrCode": "/images/links/ca_code.png"
+    },
+    {
+      "name": "江西财经大学网络安全协会",
+      "icon": "https://www.wpst.top/favicon.svg",
+      "desc": "网安 * 领域",
+      "website": "https://www.wpst.top"
+    }
+  ],
+  "members": [
+    {
+      "name": "JunieXD",
+      "avatar": "/images/excellent_member/wjj.png",
+      "role": "未来会更新内容",
+      "desc": "咕咕咕",
+      "website": "https://juniexd.cn/"
+    },
+    {
+      "name": "Mohao",
+      "avatar": "https://www.woodfishhhh.xyz/images/b_42269307aa01a6e139e000cb33d42ee3.jpg.jpeg?_t=1751965187830",
+      "role": "一般通过男性",
+      "desc": "钟明皓大神",
+      "website": "https://blog.mohao.me/"
+    },
+    {
+      "name": "Louisdlee",
+      "avatar": "https://www.woodfishhhh.xyz/images/b_07a423060cfba799e5b0837682c40452.jpg.jpeg?_t=1751965187830",
+      "role": "算法专家",
+      "desc": "李鑫哥哥",
+      "website": "https://blog.csdn.net/louisdlee/"
+    },
+    {
+      "name": "有毒的羊",
+      "avatar": "https://www.woodfishhhh.xyz/images/b_75a72dbe4807dafc0c1846ea347ab524.jpg.jpeg?_t=1751965187830",
+      "role": "可爱成员",
+      "desc": "小羊，我的小羊",
+      "website": "https://poisonous-sheep.github.io/"
+    },
+    {
+      "name": "WoodFish",
+      "avatar": "https://pic1.imgdb.cn/item/682f3d1658cb8da5c807b704.jpg",
+      "role": "我喜欢喝雪碧",
+      "desc": "全栈开发（with AI）",
+      "website": "https://www.woodfishhhh.xyz/",
+      "linkText": "我喜欢你"
+    }
+  ],
+  "apply": {
+    "requirements": [
+      "网站内容积极向上，符合法律法规",
+      "网站运行稳定，访问速度良好",
+      "与技术、编程、教育相关的优质内容",
+      "网站有一定的更新频率"
+    ],
+    "contacts": [
+      {
+        "name": "多喜长安",
+        "email": "3200513041@qq.com",
+        "phone": "19970929018"
+      },
+      { "name": "WoodFish", "email": "3053932588@qq.com", "qq": "3053932588" }
+    ]
+  }
+}

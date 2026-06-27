@@ -1,0 +1,146 @@
+/* ==========================================================================
+   基础层：重置 + 排版基线 + 通用工具类 + 动画关键帧
+   页面专属样式不写在这里，一律下沉到对应 .vue 的 <style scoped>。
+   ========================================================================== */
+
+/* ---- 重置 ---- */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+ul {
+  list-style: none;
+}
+
+/* ---- 文档基线 ---- */
+body {
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  color: var(--text);
+  line-height: 1.6;
+  background-color: var(--bg-light);
+  padding-top: var(--header-height);
+}
+
+a {
+  text-decoration: none;
+  color: var(--primary);
+  transition: color var(--transition);
+}
+a:hover {
+  color: var(--primary-dark);
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* ---- 布局容器 ---- */
+.container {
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: 0 20px;
+}
+.container-fluid {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* ---- 通用标题 ---- */
+.section-title {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2rem;
+  color: var(--primary-dark);
+}
+
+/* ---- 按钮 ---- */
+.btn {
+  display: inline-block;
+  padding: 12px 24px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color var(--transition), color var(--transition),
+    border-color var(--transition);
+}
+.btn-primary {
+  background-color: var(--primary);
+  color: #fff;
+  border: 2px solid var(--primary);
+}
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+  color: #fff;
+}
+.btn-secondary {
+  background-color: transparent;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+}
+.btn-secondary:hover {
+  background-color: var(--primary);
+  color: #fff;
+}
+
+/* ---- 滚动入场动画指令 v-reveal ---- */
+[v-reveal] {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+[v-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---- 关键帧（全局，供 scoped 样式按名引用）---- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+@keyframes bounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0) translateX(-50%);
+  }
+  40% {
+    transform: translateY(-10px) translateX(-50%);
+  }
+  60% {
+    transform: translateY(-5px) translateX(-50%);
+  }
+}
