@@ -13,7 +13,8 @@ const routes = [
   },
   { path: '/leader', name: 'leader', component: () => import('./views/LeaderView.vue') },
   { path: '/excellent', name: 'excellent', component: () => import('./views/ExcellentView.vue') },
-  { path: '/links', name: 'links', component: () => import('./views/LinksView.vue') }
+  { path: '/links', name: 'links', component: () => import('./views/LinksView.vue') },
+  { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('./views/NotFoundView.vue') }
 ]
 
 const router = createRouter({
