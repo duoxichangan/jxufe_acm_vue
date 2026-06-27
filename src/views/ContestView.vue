@@ -60,7 +60,7 @@ const { skeletons } = useSkeleton(8)
    ========================================================================== */
 .contest-page {
   position: relative;
-  overflow: hidden;
+  overflow: clip;
   min-height: 100vh;
   margin-top: calc(-1 * var(--header-height));
   padding: calc(var(--header-height) + 40px) 0 var(--space-3xl);
@@ -212,7 +212,7 @@ const { skeletons } = useSkeleton(8)
     gap: var(--space-md);
   }
 }
-@media (max-width: 480px) {
+@media (max-width: 576px) {
   .page-hero h1 {
     font-size: 1.7rem;
   }

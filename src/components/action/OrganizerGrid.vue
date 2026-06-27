@@ -129,7 +129,7 @@ onUnmounted(() => {
   color: var(--text-light);
 }
 
-@media (max-width: 420px) {
+@media (max-width: 576px) {
   .qr-img { width: 140px; }
 }
 </style>

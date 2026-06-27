@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { useNews } from "../composables/useNews";
 import AppFooter from "../components/AppFooter.vue";
 
@@ -286,46 +286,6 @@ const codeRows = Array.from({ length: 12 }, (_, i) => {
 
 const { newsList, loading, error } = useNews();
 
-// ── 时间轴 ──
-const selectedDate = ref(null); // 'YYYY-MM-DD' or null
-
-const uniqueNewsDates = computed(() => {
-  const seen = new Set();
-  const result = [];
-  [...newsList.value]
-    .sort((a, b) => b.date - a.date)
-    .forEach((n) => {
-      if (!n.date) return;
-      const y = n.date.getFullYear();
-      const m = String(n.date.getMonth() + 1).padStart(2, "0");
-      const d = String(n.date.getDate()).padStart(2, "0");
-      const key = `${y}-${m}-${d}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        result.push({
-          key,
-          day: n.date.getDate(),
-          month: n.date.toLocaleDateString("zh-CN", { month: "short" }),
-        });
-      }
-    });
-  return result;
-});
-
-const filteredNews = computed(() => {
-  if (!selectedDate.value) return newsList.value;
-  return newsList.value.filter((n) => {
-    if (!n.date) return false;
-    const y = n.date.getFullYear();
-    const m = String(n.date.getMonth() + 1).padStart(2, "0");
-    const d = String(n.date.getDate()).padStart(2, "0");
-    return `${y}-${m}-${d}` === selectedDate.value;
-  });
-});
-
-const selectDate = (key) => {
-  selectedDate.value = selectedDate.value === key ? null : key;
-};
 </script>
 
 <template>
@@ -553,32 +513,13 @@ const selectDate = (key) => {
   <!-- 最新动态 -->
   <section id="news" class="news container-fluid">
     <div class="container news-inner">
-      <!-- 第一行：标题 + 时间轴 -->
+      <!-- 第一行：标题 -->
       <div class="news-topbar">
         <div class="news-header">
           <p class="news-label">LATEST NEWS</p>
           <h2 class="news-heading">
             协会<span class="highlight">大事记</span>
           </h2>
-        </div>
-        <div class="news-timeline">
-          <button
-            class="nt-item"
-            :class="{ active: selectedDate === null }"
-            @click="selectedDate = null"
-          >
-            全部
-          </button>
-          <button
-            v-for="(item, i) in uniqueNewsDates"
-            :key="i"
-            class="nt-item"
-            :class="{ active: selectedDate === item.key }"
-            @click="selectDate(item.key)"
-          >
-            <span class="nt-day">{{ item.day }}</span>
-            <span class="nt-mon">{{ item.month }}</span>
-          </button>
         </div>
       </div>
 
@@ -592,24 +533,47 @@ const selectDate = (key) => {
       </div>
       <p v-else-if="error" class="hint">加载新闻失败</p>
 
-      <!-- 第二行：新闻 Grid -->
+      <!-- 第二行：新闻 Grid（最近5条 + 跳转大事记） -->
       <div v-else class="news-grid">
         <article
-          v-for="(item, i) in filteredNews"
-          :key="item.file"
+          v-for="(item, i) in newsList"
+          :key="item.slug"
           v-reveal="'fade-up'"
           :style="{ '--reveal-index': i }"
           class="news-card"
         >
-          <div class="nc-date">
-            <span>{{ item.day }}</span>
+          <div class="nc-badge">
+            <span class="nc-badge-day">{{ item.day }}</span>
+            <span class="nc-badge-mon">{{ item.month }}</span>
           </div>
-          <h3>{{ item.title }}</h3>
-          <p>{{ item.summary }}</p>
-          <RouterLink :to="`/action/${item.slug}`" class="read-more"
-            >阅读更多 →</RouterLink
-          >
+          <div class="nc-body">
+            <time class="nc-time">{{
+              item.date.getFullYear() + "年 / " + item.month + " / " + item.day + "日"
+            }}</time>
+            <h3 class="nc-title">{{ item.title }}</h3>
+            <p class="nc-summary">{{ item.summary }}</p>
+          </div>
+          <RouterLink :to="`/action/${item.slug}`" class="nc-link"
+            >阅读更多 <i class="fas fa-arrow-right"></i
+          ></RouterLink>
         </article>
+
+        <!-- 跳转大事记卡片 -->
+        <RouterLink
+          to="/all-action"
+          v-reveal="'fade-up'"
+          :style="{ '--reveal-index': newsList.length }"
+          class="news-card news-card--more"
+        >
+          <div class="nc-badge nc-badge--more">
+            <span class="nc-badge-day nc-badge-day--outline">+</span>
+          </div>
+          <div class="nc-body">
+            <h3 class="nc-title">查看完整大事记</h3>
+            <p class="nc-summary">浏览协会历年全部活动与获奖记录</p>
+          </div>
+          <span class="nc-link">前往大事记 <i class="fas fa-arrow-right"></i></span>
+        </RouterLink>
       </div>
     </div>
     <AppFooter />
@@ -622,7 +586,7 @@ const selectDate = (key) => {
    ========================================================================== */
 .hero {
   position: relative;
-  overflow: hidden;
+  overflow: clip;
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -775,10 +739,12 @@ const selectDate = (key) => {
   font-family:
     "Noto Serif SC", "Source Han Serif SC", "SimSun", "STSong", serif;
   font-weight: 900;
-  font-size: 4.2rem;
+  font-size: clamp(2.2rem, 3.5vw + 0.6rem, 4.2rem);
   margin-bottom: var(--space-lg);
   line-height: 1.5;
-  letter-spacing: 4px;
+  letter-spacing: clamp(1px, 0.3vw, 4px);
+  /* <br> 仍换行，但单行内不再因字过大而折行 */
+  white-space: nowrap;
   color: var(--primary-dark);
   animation: fadeInUp 0.7s ease-out;
 }
@@ -1195,68 +1161,7 @@ const selectDate = (key) => {
   z-index: -1;
 }
 
-/* 时间轴 */
-.news-timeline {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding: 4px 0;
-  min-width: 0;
-}
-.news-timeline::-webkit-scrollbar {
-  display: none;
-}
-.nt-item {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: 6px 14px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  border-radius: var(--radius-sm);
-  position: relative;
-}
-.nt-item::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 2.5px;
-  border-radius: 2px;
-  background: var(--primary);
-  transition: width var(--transition-fast);
-}
-.nt-item:hover::after {
-  width: 60%;
-}
-.nt-item.active::after {
-  width: 100%;
-}
-.nt-item.active {
-  color: var(--primary);
-}
-.nt-day {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: inherit;
-  line-height: 1;
-}
-.nt-mon {
-  font-size: 0.65rem;
-  color: var(--text-muted);
-}
-
-/* ── 第二行：新闻 Grid ── */
+/* ── 新闻 Grid ── */
 .hint {
   text-align: center;
   color: var(--text-light);
@@ -1264,15 +1169,16 @@ const selectDate = (key) => {
 }
 .news-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: var(--space-lg);
   padding: 0 var(--space-md);
 }
 .news-card {
   display: grid;
-  grid-template-columns: 56px 1fr;
-  grid-template-rows: auto 1fr auto;
-  column-gap: var(--space-md);
+  grid-template-columns: 58px 1fr;
+  grid-template-rows: 1fr auto;
+  column-gap: var(--space-lg);
+  row-gap: var(--space-sm);
   padding: var(--space-lg);
   background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.06);
@@ -1281,69 +1187,171 @@ const selectDate = (key) => {
     transform var(--transition-spring),
     box-shadow var(--transition),
     border-color var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+/* 左侧彩色装饰条 */
+.news-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 14px;
+  bottom: 14px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(180deg, var(--primary), var(--primary-light));
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+.news-card:hover::before {
+  opacity: 1;
 }
 .news-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(26, 115, 232, 0.08);
-  border-color: rgba(26, 115, 232, 0.15);
+  box-shadow: 0 14px 36px rgba(26, 115, 232, 0.1);
+  border-color: rgba(26, 115, 232, 0.18);
 }
 
-/* 日期徽章 */
-.nc-date {
-  grid-row: 1 / 3;
-  width: 56px;
-  height: 56px;
-  border-radius: var(--radius-md);
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+/* ── 日期徽章（镂空数字）── */
+.nc-badge {
+  grid-row: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  align-self: start;
-}
-.nc-date span {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #fff;
+  align-items: flex-start;
   line-height: 1;
+  flex-shrink: 0;
+  padding-top: 2px;
 }
-.news-card h3 {
-  grid-column: 2;
-  margin-bottom: 2px;
-  color: var(--text);
-  font-size: 1rem;
+.nc-badge-day {
+  font-family: "Noto Serif SC", "Georgia", "Times New Roman", serif;
+  font-size: 2.8rem;
+  font-weight: 900;
+  /* 镂空描边 */
+  -webkit-text-stroke: 2px var(--primary);
+  color: transparent;
+  line-height: 0.85;
+  letter-spacing: -2px;
+  transition:
+    -webkit-text-stroke-color var(--transition),
+    color var(--transition);
+}
+.news-card:hover .nc-badge-day {
+  -webkit-text-stroke-color: var(--primary-dark);
+  color: rgba(26, 115, 232, 0.06);
+}
+.nc-badge-mon {
+  font-size: 0.7rem;
   font-weight: 600;
-  align-self: end;
+  color: var(--primary);
+  letter-spacing: 1px;
+  margin-top: 4px;
+  text-transform: uppercase;
+  transition: color var(--transition);
 }
-.news-card p {
-  grid-column: 2;
-  margin-bottom: var(--space-sm);
+.news-card:hover .nc-badge-mon {
+  color: var(--primary-dark);
+}
+
+/* ── 内容区 ── */
+.nc-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.nc-time {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  order: -1;
+}
+.nc-title {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.96rem;
+  font-weight: 650;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color var(--transition-fast);
+}
+.news-card:hover .nc-title {
+  color: var(--primary-dark);
+}
+.nc-summary {
+  margin: 0;
   color: var(--text-light);
-  font-size: 0.84rem;
+  font-size: 0.82rem;
   line-height: 1.55;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-.read-more {
+
+/* ── 底部链接 ── */
+.nc-link {
   grid-column: 1 / -1;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--primary);
   transition:
     gap var(--transition),
     color var(--transition-fast);
-  margin-top: var(--space-sm);
   padding-top: var(--space-sm);
-  border-top: 1px solid rgba(0, 0, 0, 0.04);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  text-decoration: none;
 }
-.read-more:hover {
+.nc-link i {
+  font-size: 0.7rem;
+  transition: transform var(--transition);
+}
+.nc-link:hover {
   color: var(--primary-dark);
   gap: 10px;
+}
+.nc-link:hover i {
+  transform: translateX(3px);
+}
+
+/* ── 跳转大事记卡片 ── */
+.news-card--more {
+  text-decoration: none;
+  cursor: pointer;
+  border-style: dashed;
+  border-color: rgba(26, 115, 232, 0.18);
+  background: linear-gradient(135deg, rgba(26, 115, 232, 0.015), rgba(79, 195, 247, 0.02));
+}
+.news-card--more:hover {
+  border-color: var(--primary);
+  background: linear-gradient(135deg, rgba(26, 115, 232, 0.04), rgba(79, 195, 247, 0.05));
+}
+.news-card--more .nc-title {
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+.news-card--more:hover .nc-title {
+  color: var(--primary);
+}
+.news-card--more .nc-summary {
+  color: var(--text-muted);
+}
+/* "更多"卡片镂空加号 */
+.nc-badge-day--outline {
+  -webkit-text-stroke: 2px rgba(26, 115, 232, 0.35);
+  color: transparent;
+  font-weight: 300;
+  letter-spacing: 0;
+}
+.news-card--more:hover .nc-badge-day--outline {
+  -webkit-text-stroke-color: var(--primary);
+  color: rgba(26, 115, 232, 0.05);
 }
 .news :deep(footer) {
   margin-top: 100px;
@@ -1441,14 +1449,6 @@ const selectDate = (key) => {
   }
   .floating-code {
     max-width: 180px;
-  }
-  .news-topbar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-md);
-  }
-  .news-timeline {
-    width: 100%;
   }
   .news-grid {
     grid-template-columns: 1fr;

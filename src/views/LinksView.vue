@@ -131,7 +131,7 @@ const linkText = (m) => m.linkText || '访问个人网站'
    ========================================================================== */
 .links-page {
   position: relative;
-  overflow: hidden;
+  overflow: clip;
   min-height: 100vh;
   margin-top: calc(-1 * var(--header-height));
   padding: calc(var(--header-height) + 40px) 0 var(--space-3xl);
@@ -485,7 +485,7 @@ const linkText = (m) => m.linkText || '访问个人网站'
     grid-template-columns: repeat(4, 1fr);
   }
 }
-@media (max-width: 1024px) {
+@media (max-width: 992px) {
   .member-grid {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -518,7 +518,7 @@ const linkText = (m) => m.linkText || '访问个人网站'
     justify-content: center;
   }
 }
-@media (max-width: 480px) {
+@media (max-width: 576px) {
   .page-hero h1 {
     font-size: 1.7rem;
   }

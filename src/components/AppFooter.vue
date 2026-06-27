@@ -239,7 +239,7 @@ footer {
     grid-template-columns: 1fr 1fr;
   }
 }
-@media (max-width: 480px) {
+@media (max-width: 576px) {
   .footer-main {
     grid-template-columns: 1fr;
     gap: var(--space-lg);

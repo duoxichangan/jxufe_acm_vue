@@ -2,7 +2,7 @@ import { ref, onMounted } from 'vue'
 import { useJson } from './useJson'
 
 /**
- * 最新动态：读取 /data/actions.json，只保留 2025 年并按日期倒序。
+ * 最新动态：读取 /data/actions.json，按日期倒序取最近 5 条。
  * 摘要直接来自 JSON（不再 fetch action HTML）。
  */
 export function useNews() {
@@ -16,8 +16,8 @@ export function useNews() {
     await load()
     newsList.value = (raw.value || [])
       .map((it) => ({ ...it, date: new Date(it.date) }))
-      .filter((it) => it.date.getFullYear() === 2025)
       .sort((a, b) => b.date - a.date)
+      .slice(0, 5)
       .map((it) => ({
         ...it,
         day: it.date.getDate(),

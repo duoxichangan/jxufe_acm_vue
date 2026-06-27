@@ -112,7 +112,7 @@ const { skeletons } = useSkeleton(5);
    ========================================================================== */
 .leader-page {
   position: relative;
-  overflow: hidden;
+  overflow: clip;
   min-height: 100vh;
   margin-top: calc(-1 * var(--header-height));
   padding: calc(var(--header-height) + 40px) 0 var(--space-3xl);
@@ -333,7 +333,7 @@ const { skeletons } = useSkeleton(5);
 }
 
 /* ── 响应式 ── */
-@media (max-width: 900px) {
+@media (max-width: 992px) {
   .leader-grid {
     grid-template-columns: 1fr;
     gap: var(--space-lg);
@@ -348,7 +348,7 @@ const { skeletons } = useSkeleton(5);
     font-size: 2rem;
   }
 }
-@media (max-width: 480px) {
+@media (max-width: 576px) {
   .leader-card {
     flex-direction: column;
     align-items: center;

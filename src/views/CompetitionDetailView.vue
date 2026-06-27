@@ -12,13 +12,29 @@ const comp = computed(
   () => (competitions.value || []).find((c) => c.slug === route.params.slug)
 )
 
-// 将按年分组的 history 展平为表格行
+// 将按年分组的 history 展平为表格行（按年份降序）
 const historyRows = computed(() => {
   if (!comp.value?.history) return []
-  return comp.value.history.flatMap((g) =>
+  const sorted = [...comp.value.history].sort((a, b) => Number(b.year) - Number(a.year))
+  return sorted.flatMap((g) =>
     (g.entries || []).map((e) => ({ year: g.year, ...e }))
   )
 })
+
+// 奖牌颜色
+function medalClass(desc) {
+  if (!desc) return ''
+  if (/金牌|🥇|一等/.test(desc)) return 'medal-gold'
+  if (/银牌|🥈|二等/.test(desc)) return 'medal-silver'
+  if (/铜牌|🥉|三等/.test(desc)) return 'medal-bronze'
+  if (/铁牌/.test(desc)) return 'medal-iron'
+  return ''
+}
+
+// 赛事等级
+function entryLevel(entry) {
+  return entry.level || '国家级'
+}
 </script>
 
 <template>
@@ -78,6 +94,7 @@ const historyRows = computed(() => {
               <thead>
                 <tr>
                   <th>年份</th>
+                  <th>等级</th>
                   <th>赛事</th>
                   <th>成绩</th>
                   <th>参赛成员</th>
@@ -86,8 +103,9 @@ const historyRows = computed(() => {
               <tbody>
                 <tr v-for="(row, i) in historyRows" :key="i">
                   <td class="cell-year">{{ row.year }}</td>
+                  <td class="cell-level" :class="'level-' + entryLevel(row).replace('级','')">{{ entryLevel(row) }}</td>
                   <td class="cell-title">{{ row.title }}</td>
-                  <td class="cell-desc">{{ row.desc }}</td>
+                  <td class="cell-desc" :class="medalClass(row.desc)">{{ row.desc }}</td>
                   <td class="cell-members">{{ row.members || '—' }}</td>
                 </tr>
               </tbody>
@@ -109,7 +127,7 @@ const historyRows = computed(() => {
    ========================================================================== */
 .comp-page {
   position: relative;
-  overflow: hidden;
+  overflow: clip;
   min-height: 100vh;
   margin-top: calc(-1 * var(--header-height));
   padding: calc(var(--header-height) + 40px) 0 var(--space-3xl);
@@ -282,7 +300,7 @@ const historyRows = computed(() => {
 }
 .history-table th {
   padding: 14px 16px;
-  text-align: left;
+  text-align: center;
   font-weight: 700;
   font-size: var(--font-size-xs);
   text-transform: uppercase;
@@ -294,21 +312,15 @@ const historyRows = computed(() => {
 .history-table th:first-child {
   padding-left: 24px;
 }
-.history-table th:last-child {
-  text-align: center;
-  padding-right: 24px;
-}
 .history-table td {
   padding: 14px 16px;
+  text-align: center;
   border-bottom: 1px solid rgba(0,0,0,0.04);
   color: var(--text);
   vertical-align: middle;
 }
 .history-table td:first-child {
   padding-left: 24px;
-}
-.history-table td:last-child {
-  padding-right: 24px;
 }
 .history-table tbody tr {
   transition: background var(--transition-fast);
@@ -326,11 +338,42 @@ const historyRows = computed(() => {
   white-space: nowrap;
   width: 1%;
 }
+.cell-level {
+  white-space: nowrap;
+  font-weight: 650;
+  font-size: 0.78rem;
+  width: 1%;
+}
+.level-国际 {
+  color: #c79100;
+}
+.level-国家 {
+  color: var(--primary);
+}
+.level-省 {
+  color: #7a8b99;
+}
 .cell-title {
   font-weight: 600;
 }
 .cell-desc {
   color: var(--text-light);
+}
+/* 奖牌颜色 */
+.medal-gold {
+  color: #c79100 !important;
+  font-weight: 700;
+}
+.medal-silver {
+  color: #7a8b99 !important;
+  font-weight: 600;
+}
+.medal-bronze {
+  color: #b87333 !important;
+  font-weight: 600;
+}
+.medal-iron {
+  color: #999 !important;
 }
 .cell-members {
   color: var(--text-light);
@@ -376,7 +419,7 @@ const historyRows = computed(() => {
     width: 140px;
   }
 }
-@media (max-width: 480px) {
+@media (max-width: 576px) {
   .page-hero h1 {
     font-size: 1.7rem;
   }

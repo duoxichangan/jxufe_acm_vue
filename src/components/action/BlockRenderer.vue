@@ -110,22 +110,6 @@ const cells = (row) => row.map((c) => (typeof c === 'string' ? { text: c } : c))
     </div>
   </section>
 
-  <!-- 加入我们 / 二维码 -->
-  <section v-else-if="block.type === 'join'" class="b-join">
-    <h2 v-if="block.heading">
-      <i v-if="block.icon" :class="`fas ${block.icon}`"></i>
-      <span v-html="html(block.heading)"></span>
-    </h2>
-    <p v-if="block.qq">参与活动需加入QQ群：{{ block.qq }}</p>
-    <div class="qr-row">
-      <figure v-for="(img, i) in block.images" :key="i">
-        <img :src="img.src" :alt="img.alt" loading="lazy" />
-        <figcaption v-if="img.caption">{{ img.caption }}</figcaption>
-      </figure>
-    </div>
-    <p v-if="block.note" class="qr-note">{{ block.note }}</p>
-  </section>
-
   <!-- 主办部门 -->
   <section v-else-if="block.type === 'organizers'" class="b-organizers">
     <h2 v-if="block.heading">

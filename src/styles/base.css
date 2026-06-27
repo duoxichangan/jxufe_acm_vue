@@ -70,6 +70,18 @@ img {
   padding: 0;
 }
 
+/* 容器内边距响应式 */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 16px;
+  }
+}
+@media (max-width: 576px) {
+  .container {
+    padding: 0 12px;
+  }
+}
+
 /* ---- 通用标题 ---- */
 .section-title {
   text-align: center;
@@ -337,6 +349,20 @@ a, button, [role="button"], input, select, textarea {
 .decorative-orb--primary { background: var(--primary); }
 .decorative-orb--accent  { background: var(--accent); }
 .decorative-orb--light   { background: var(--primary-light); }
+
+/* 装饰球响应式缩小 */
+@media (max-width: 768px) {
+  .decorative-orb {
+    filter: blur(50px);
+    opacity: 0.08;
+  }
+}
+@media (max-width: 576px) {
+  .decorative-orb {
+    filter: blur(30px);
+    opacity: 0.05;
+  }
+}
 
 /* -- 点阵背景 -- */
 .bg-dots {
