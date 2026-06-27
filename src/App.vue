@@ -1,8 +1,15 @@
 <script setup>
 import { onMounted, onUnmounted } from 'vue'
+import { useRoute } from 'vue-router'
 import AppHeader from './components/AppHeader.vue'
 import AppFooter from './components/AppFooter.vue'
 import FloatingJoin from './components/FloatingJoin.vue'
+import { useCodeTrail } from './composables/useCodeTrail.js'
+import { useCursorRipple } from './composables/useCursorRipple.js'
+
+const route = useRoute()
+const { start: trailStart, stop: trailStop } = useCodeTrail()
+const { ripples, start: rippleStart, stop: rippleStop } = useCursorRipple()
 
 // 控制台彩蛋：开发者工具打开时输出问候语。
 let timer = null
@@ -35,18 +42,36 @@ const onKey = (e) => {
 onMounted(() => {
   timer = setInterval(check, 500)
   document.addEventListener('keydown', onKey)
+  trailStart()
+  rippleStart()
 })
 onUnmounted(() => {
   clearInterval(timer)
+  trailStop()
+  rippleStop()
   document.removeEventListener('keydown', onKey)
 })
 </script>
 
 <template>
+  <!-- 全局光标涟漪 -->
+  <div class="ripple-layer" aria-hidden="true">
+    <span
+      v-for="r in ripples"
+      :key="r.id"
+      class="ripple-ring"
+      :style="{ left: r.x + 'px', top: r.y + 'px' }"
+    ></span>
+  </div>
+
   <AppHeader />
   <main>
-    <RouterView />
+    <RouterView v-slot="{ Component }">
+      <Transition name="fade-slide">
+        <component :is="Component" />
+      </Transition>
+    </RouterView>
   </main>
-  <AppFooter />
+  <AppFooter v-if="route.name !== 'home'" />
   <FloatingJoin />
 </template>

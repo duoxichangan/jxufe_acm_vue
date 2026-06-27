@@ -2,11 +2,11 @@ import { ref, onMounted } from 'vue'
 import { useJson } from './useJson'
 
 /**
- * 最新动态：读取 /data/news.json，只保留 2025 年并按日期倒序。
+ * 最新动态：读取 /data/actions.json，只保留 2025 年并按日期倒序。
  * 摘要直接来自 JSON（不再 fetch action HTML）。
  */
 export function useNews() {
-  const { data: raw, loading, error, load } = useJson('/data/news.json', {
+  const { data: raw, loading, error, load } = useJson('/data/actions.json', {
     initial: [],
     auto: false
   })

@@ -2,10 +2,9 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 
 defineProps({
-  items: { type: Array, default: () => [] } // [{ icon, name, qr?, text? }]
+  items: { type: Array, default: () => [] }
 })
 
-// 同一时间只展开一张卡片
 const openIdx = ref(-1)
 const toggle = (i) => {
   openIdx.value = openIdx.value === i ? -1 : i
@@ -37,7 +36,9 @@ onUnmounted(() => {
       @click="toggle(i)"
     >
       <div class="card-main">
-        <i :class="`fas ${item.icon}`"></i>
+        <div class="card-icon">
+          <i :class="`fas ${item.icon}`"></i>
+        </div>
         <span>{{ item.name }}</span>
       </div>
       <div class="qr-panel">
@@ -52,77 +53,83 @@ onUnmounted(() => {
 .organizer-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-  margin-top: 12px;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
 }
 .organizer-card {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 14px;
+  gap: var(--space-md);
+  padding: var(--space-lg);
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
   cursor: pointer;
   overflow: hidden;
   transition: transform var(--transition), box-shadow var(--transition);
 }
 .organizer-card:hover {
-  transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
 }
 .organizer-card.expanded {
-  transform: translateY(-6px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
 }
 .card-main {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-md);
+  font-weight: 600;
+  color: var(--text);
 }
-.card-main i {
+.card-icon {
   flex-shrink: 0;
-  width: 38px;
-  height: 38px;
-  line-height: 38px;
-  text-align: center;
-  border-radius: 9px;
-  font-size: 1.15rem;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  font-size: 1.2rem;
   color: var(--primary);
-  background: linear-gradient(135deg, rgba(26, 115, 232, 0.12), rgba(26, 115, 232, 0.06));
+  background: rgba(26, 115, 232, 0.08);
+  transition: background var(--transition);
+}
+.organizer-card:hover .card-icon {
+  background: var(--primary);
+  color: #fff;
 }
 .qr-panel {
   width: 100%;
   max-height: 0;
   opacity: 0;
-  padding: 0 12px;
+  padding: 0 var(--space-md);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  transition: max-height 0.36s cubic-bezier(0.2, 0.9, 0.2, 1),
-    opacity 0.22s ease, padding 0.22s ease;
+  gap: var(--space-sm);
+  transition: max-height var(--transition-smooth), opacity 0.25s ease, padding 0.25s ease;
 }
 .organizer-card.expanded .qr-panel {
   max-height: 360px;
   opacity: 1;
-  padding: 12px;
+  padding: var(--space-md);
 }
 .qr-img {
   width: 160px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: #fff;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-md);
 }
 .qr-text {
   font-size: 0.95rem;
-  color: #444;
+  color: var(--text-light);
 }
+
 @media (max-width: 420px) {
-  .qr-img {
-    width: 140px;
-  }
+  .qr-img { width: 140px; }
 }
 </style>

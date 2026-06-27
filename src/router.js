@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { nextTick } from 'vue'
 
 const routes = [
   { path: '/', name: 'home', component: () => import('./views/HomeView.vue') },
@@ -21,7 +22,12 @@ const router = createRouter({
   scrollBehavior(to, _from, savedPosition) {
     if (savedPosition) return savedPosition
     if (to.hash) return { el: to.hash, behavior: 'smooth' }
-    return { top: 0 }
+    // html 元素设置了 overflow-y:auto 作为滚动容器，需要显式操作
+    nextTick(() => {
+      document.documentElement.scrollTop = 0
+      window.scrollTo(0, 0)
+    })
+    return { top: 0, behavior: 'instant' }
   }
 })
 

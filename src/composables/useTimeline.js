@@ -3,7 +3,7 @@ import { useJson } from './useJson'
 
 /** 大事记：读取 /data/news.json，置顶事件单独抽出，其余按年份倒序分组。 */
 export function useTimeline() {
-  const { data: raw, load } = useJson('/data/news.json', { initial: [], auto: false })
+  const { data: raw, load } = useJson('/data/actions.json', { initial: [], auto: false })
   const topEvents = ref([])
   const yearGroups = ref([])
   const loading = ref(true)

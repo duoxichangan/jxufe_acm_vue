@@ -6,7 +6,7 @@ const scrolled = ref(false)
 const menuOpen = ref(false)
 
 const onScroll = () => {
-  scrolled.value = window.scrollY > 50
+  scrolled.value = window.scrollY > 80
 }
 const onDocumentClick = (e) => {
   const headerEl = document.querySelector('header')
@@ -27,8 +27,13 @@ onUnmounted(() => {
   <header :class="{ scrolled, 'menu-open': menuOpen }">
     <div class="container bar">
       <RouterLink to="/" class="logo" @click="menuOpen = false">
-        <img src="/images/logo.png" alt="协会logo" class="logo-image" />
-        <h1>江西财经大学程序设计竞赛协会</h1>
+        <div class="logo-mark">
+          <img src="/images/logo.png" alt="协会logo" />
+        </div>
+        <div class="logo-text">
+          <span class="logo-title">程序设计竞赛协会</span>
+          <span class="logo-sub">江西财经大学</span>
+        </div>
       </RouterLink>
 
       <nav>
@@ -45,11 +50,10 @@ onUnmounted(() => {
         @click.stop="menuOpen = !menuOpen"
         aria-label="菜单"
       >
-        <svg class="hamburger-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M73.591065 278.392498c0-29.520337 24.016996-53.537334 53.537334-53.537334l876.816846 0c29.521361 0 53.537334 24.016996 53.537334 53.537334 0 29.519314-24.015973 53.53631-53.537334 53.53631L127.128399 331.928808c-29.520337 0-53.537334-24.016996-53.537334-53.53631zM73.591065 592.350003c0-29.520337 24.016996-53.541427 53.537334-53.541427l876.816846 0c29.521361 0 53.537334 24.01802 53.537334 53.541427 0 29.520337-24.015973 53.537334-53.537334 53.537334L127.128399 645.887337c-29.520337 0-53.537334-24.016996-53.537334-53.537334zM73.591065 903.797337c0-29.521361 24.016996-53.537334 53.537334-53.537334l876.816846 0c29.521361 0 53.537334 24.015973 53.537334 53.537334 0 29.521361-24.015973 53.537334-53.537334 53.537334L127.128399 957.334671c-29.520337 0-53.537334-24.015973-53.537334-53.537334z"
-            fill="currentColor"
-          />
+        <svg class="hamburger-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <rect x="15" y="28" width="70" height="4" rx="2" fill="currentColor" />
+          <rect x="15" y="48" width="70" height="4" rx="2" fill="currentColor" />
+          <rect x="15" y="68" width="70" height="4" rx="2" fill="currentColor" />
         </svg>
       </button>
     </div>
@@ -60,71 +64,127 @@ onUnmounted(() => {
 header {
   position: fixed;
   inset: 0 0 auto 0;
-  z-index: 1000;
-  background-color: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  box-shadow: var(--shadow);
-  transition: background-color var(--transition), box-shadow var(--transition);
+  z-index: var(--z-header);
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition:
+    background var(--transition-smooth),
+    box-shadow var(--transition-smooth),
+    border-color var(--transition-smooth),
+    backdrop-filter var(--transition-smooth);
 }
 header.scrolled {
-  background-color: rgba(255, 255, 255, 0.98);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(15px);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 1px 24px rgba(0, 0, 0, 0.06);
+  border-bottom-color: rgba(0, 0, 0, 0.05);
 }
 
 .bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 20px;
+  padding: 0 var(--space-md);
+  height: 80px;
 }
 
+/* ---- Logo ---- */
 .logo {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
 }
-.logo-image {
-  height: 50px;
+.logo-mark {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.logo-mark img {
+  width: 100%;
+  height: 100%;
   object-fit: contain;
+  transition: transform var(--transition);
 }
-.logo h1 {
-  color: var(--primary);
+.logo:hover .logo-mark img {
+  transform: scale(1.06);
+}
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+.logo-title {
   font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
   letter-spacing: 0.5px;
 }
+.logo-sub {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
 
+/* ---- 导航 ---- */
 nav ul {
   display: flex;
-}
-nav li {
-  margin-left: 20px;
+  gap: 2px;
 }
 nav a {
+  position: relative;
   display: block;
-  padding: 8px 12px;
-  border-radius: 4px;
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
   color: var(--text);
+  font-size: 0.9rem;
   font-weight: 500;
+  letter-spacing: 0.3px;
+  transition: color var(--transition-fast), background var(--transition-fast);
 }
-nav a:hover,
+nav a:hover {
+  color: var(--primary);
+}
 nav a.router-link-active {
   color: var(--primary);
-  background-color: rgba(26, 115, 232, 0.1);
+  font-weight: 600;
+  background: transparent;
+}
+/* 底部蓝色下划线 */
+nav a.router-link-active::after {
+  content: '';
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 2px;
+  height: 2.5px;
+  border-radius: 2px;
+  background: var(--primary);
 }
 
+/* ---- 汉堡按钮 ---- */
 .menu-toggle {
   display: none;
   background: none;
   border: none;
-  padding: 8px;
-  border-radius: 4px;
+  padding: 10px;
+  border-radius: var(--radius-full);
   cursor: pointer;
+  color: var(--text);
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+.menu-toggle:hover {
+  background: rgba(0,0,0,0.05);
   color: var(--primary);
 }
 .hamburger-icon {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   transition: transform var(--transition);
 }
 header.menu-open .hamburger-icon {
@@ -133,73 +193,58 @@ header.menu-open .hamburger-icon {
 
 /* ≤992px：启用汉堡菜单 */
 @media (max-width: 992px) {
-  .logo h1 {
-    font-size: 0.95rem;
-  }
-  .logo-image {
-    height: 45px;
-  }
-  .menu-toggle {
-    display: block;
-  }
+  .logo-title { font-size: 0.9rem; }
+  .logo-sub { font-size: 0.65rem; }
+  .logo-mark { width: 36px; height: 36px; }
+  .menu-toggle { display: block; }
   nav ul {
     position: fixed;
-    inset: 0 0 0 0;
+    inset: 0;
     height: 100vh;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    gap: 10px;
-    padding: 110px 20px 40px;
-    background: rgba(255, 255, 255, 0.98);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    gap: 4px;
+    padding: 100px 20px 40px;
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     transform: translateY(-100%);
     opacity: 0;
     pointer-events: none;
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-      opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform var(--transition-smooth), opacity var(--transition-smooth);
   }
   header.menu-open nav ul {
     transform: translateY(0);
     opacity: 1;
     pointer-events: auto;
   }
-  nav li {
-    margin: 0;
+  nav a {
+    padding: 14px 24px;
+    font-size: 1.15rem;
+    font-weight: 600;
+    border-radius: var(--radius-full);
     width: 100%;
-    max-width: 300px;
+    max-width: 280px;
     text-align: center;
   }
-  nav a {
-    padding: 15px 20px;
-    font-size: 1.2rem;
-    font-weight: 600;
-    border-radius: 8px;
-  }
-  nav a:hover,
   nav a.router-link-active {
-    color: #fff;
-    background-color: var(--primary);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+    color: var(--primary);
+    background: transparent;
+  }
+  nav a.router-link-active::after {
+    left: 50%;
+    right: auto;
+    width: 40px;
+    transform: translateX(-50%);
+    bottom: 6px;
   }
 }
 
 @media (max-width: 576px) {
-  .logo h1 {
-    font-size: 0.75rem;
-    line-height: 1.2;
-  }
-  .logo-image {
-    height: 32px;
-  }
-  .menu-toggle {
-    padding: 6px;
-  }
-  nav a {
-    font-size: 1.1rem;
-    padding: 12px 15px;
-  }
+  .logo-title { font-size: 0.8rem; }
+  .logo-mark { width: 32px; height: 32px; }
+  .bar { padding: 0 var(--space-sm); }
+  nav a { font-size: 1.05rem; padding: 12px 20px; }
 }
 </style>

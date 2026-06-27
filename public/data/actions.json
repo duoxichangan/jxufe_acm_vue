@@ -2,6 +2,9 @@
   {
     "slug": "2025-4-19-tts",
     "title": "时隔8年，我校再获天梯赛团体国一",
+    "date": "2025-04-19",
+    "isTop": false,
+    "summary": "天梯赛时隔8年再获团队国家级一等奖，全省排名升至第三",
     "subtitle": "时隔八年，再续辉煌",
     "blocks": [
       {
@@ -17,16 +20,24 @@
           {
             "title": "全国团队一等奖 — JXUFE_C1",
             "fields": [
-              { "label": "参赛队员", "value": "黄亦诚、石翰林、万俊哲、王玛琪、肖俊杰、衷铭川、徐晓律、陈帆、李鑫、牛志义" },
+              {
+                "label": "参赛队员",
+                "value": "黄亦诚、石翰林、万俊哲、王玛琪、肖俊杰、衷铭川、徐晓律、陈帆、李鑫、牛志义"
+              },
               { "label": "教练", "value": "李季" }
             ],
             "highlight": "其中，黄亦诚、石翰林分别以全省个人成绩第一名、第二名的佳绩领跑榜单！",
-            "images": ["https://pic1.imgdb.cn/item/68d3c234c5157e1a882ccbf0.png"]
+            "images": [
+              "https://pic1.imgdb.cn/item/68d3c234c5157e1a882ccbf0.png"
+            ]
           },
           {
             "title": "全国团队三等奖 — JXUFE_C2",
             "fields": [
-              { "label": "参赛队员", "value": "张志泽、刘文浩、李承志、詹宇飞、方俊、娄子豪、王征、胡强、蒋必成、吴振邦" },
+              {
+                "label": "参赛队员",
+                "value": "张志泽、刘文浩、李承志、詹宇飞、方俊、娄子豪、王征、胡强、蒋必成、吴振邦"
+              },
               { "label": "教练", "value": "李季" }
             ],
             "images": ["https://pic1.imgdb.cn/item/68d3ccbef.png"]
@@ -38,6 +49,9 @@
   {
     "slug": "2025-5-4-xa",
     "title": "2025年ICPC西安邀请赛摘金开新篇",
+    "date": "2025-05-04",
+    "isTop": false,
+    "summary": "西安邀请赛荣获江财历史首金",
     "subtitle": "历史首金！",
     "blocks": [
       {
@@ -48,17 +62,32 @@
       },
       {
         "type": "images",
-        "items": [{ "src": "/competition/icpc/hyc.png", "alt": "队长-黄亦诚", "caption": "队长-黄亦诚" }]
+        "items": [
+          {
+            "src": "/competition/icpc/hyc.png",
+            "alt": "队长-黄亦诚",
+            "caption": "队长-黄亦诚"
+          }
+        ]
       },
       {
         "type": "images",
-        "items": [{ "src": "https://pic1.imgdb.cn/item/68d3c2ccc5157e1a882ccc5d.png", "alt": "奖牌照片", "caption": "奖牌照片" }]
+        "items": [
+          {
+            "src": "https://pic1.imgdb.cn/item/68d3c2ccc5157e1a882ccc5d.png",
+            "alt": "奖牌照片",
+            "caption": "奖牌照片"
+          }
+        ]
       }
     ]
   },
   {
     "slug": "2025-5-25-cc",
     "title": "2025年CCPC长春邀请赛荣获铜牌",
+    "date": "2025-05-25",
+    "isTop": false,
+    "summary": "长春邀请赛荣获铜牌",
     "subtitle": "长是绵长的长，春是春天的春",
     "blocks": [
       {
@@ -69,13 +98,22 @@
       },
       {
         "type": "images",
-        "items": [{ "src": "https://pic1.imgdb.cn/item/68d3c333c5157e1a882cccae.jpg", "alt": "获奖团队合影", "caption": "获奖队伍合照" }]
+        "items": [
+          {
+            "src": "https://pic1.imgdb.cn/item/68d3c333c5157e1a882cccae.jpg",
+            "alt": "获奖团队合影",
+            "caption": "获奖队伍合照"
+          }
+        ]
       }
     ]
   },
   {
     "slug": "2025-6-1-zz",
     "title": "2025年CCPC郑州邀请赛荣获银牌",
+    "date": "2025-06-01",
+    "isTop": false,
+    "summary": "郑州邀请赛荣获银牌",
     "subtitle": "“河南人”体验卡",
     "blocks": [
       {
@@ -86,13 +124,22 @@
       },
       {
         "type": "images",
-        "items": [{ "src": "https://pic1.imgdb.cn/item/68d3c364c5157e1a882ccce1.jpg", "alt": "获奖团队合影", "caption": "现场滚榜照片" }]
+        "items": [
+          {
+            "src": "https://pic1.imgdb.cn/item/68d3c364c5157e1a882ccce1.jpg",
+            "alt": "获奖团队合影",
+            "caption": "现场滚榜照片"
+          }
+        ]
       }
     ]
   },
   {
     "slug": "2025-8-1-jx",
     "title": "2025暑期江西各高校新生联合训练计划",
+    "date": "2025-08-01",
+    "isTop": false,
+    "summary": "联合省内多所高校开展暑期新生算法联合训练",
     "subtitle": "携手共进，培养未来编程精英",
     "blocks": [
       {
@@ -116,13 +163,34 @@
       {
         "type": "partners",
         "logos": [
-          { "src": "https://pic1.imgdb.cn/item/68d3c441c5157e1a882ccdc5.png", "alt": "江西财经大学" },
-          { "src": "https://pic1.imgdb.cn/item/68d3c441c5157e1a882ccdc3.png", "alt": "南昌大学" },
-          { "src": "https://pic1.imgdb.cn/item/68d3c3a9c5157e1a882ccd0e.png", "alt": "江西农业大学" },
-          { "src": "https://pic1.imgdb.cn/item/68d3c3a9c5157e1a882ccd0f.png", "alt": "华东交通大学" },
-          { "src": "https://pic1.imgdb.cn/item/68d3c3aac5157e1a882ccd10.png", "alt": "东华理工大学" },
-          { "src": "https://pic1.imgdb.cn/item/68d3c3a9c5157e1a882ccd0d.png", "alt": "江西师范大学" },
-          { "src": "https://pic1.imgdb.cn/item/68d3c441c5157e1a882ccdc4.png", "alt": "南昌航空大学" }
+          {
+            "src": "https://pic1.imgdb.cn/item/68d3c441c5157e1a882ccdc5.png",
+            "alt": "江西财经大学"
+          },
+          {
+            "src": "https://pic1.imgdb.cn/item/68d3c441c5157e1a882ccdc3.png",
+            "alt": "南昌大学"
+          },
+          {
+            "src": "https://pic1.imgdb.cn/item/68d3c3a9c5157e1a882ccd0e.png",
+            "alt": "江西农业大学"
+          },
+          {
+            "src": "https://pic1.imgdb.cn/item/68d3c3a9c5157e1a882ccd0f.png",
+            "alt": "华东交通大学"
+          },
+          {
+            "src": "https://pic1.imgdb.cn/item/68d3c3aac5157e1a882ccd10.png",
+            "alt": "东华理工大学"
+          },
+          {
+            "src": "https://pic1.imgdb.cn/item/68d3c3a9c5157e1a882ccd0d.png",
+            "alt": "江西师范大学"
+          },
+          {
+            "src": "https://pic1.imgdb.cn/item/68d3c441c5157e1a882ccdc4.png",
+            "alt": "南昌航空大学"
+          }
         ],
         "note": "目前已有7省内高校表示将参与此次联合训练计划。"
       },
@@ -144,13 +212,22 @@
       },
       {
         "type": "images",
-        "items": [{ "src": "https://pic1.imgdb.cn/item/68d3c3a9c5157e1a882ccd0c.jpg", "alt": "集训群聊二维码", "caption": "集训群聊二维码" }]
+        "items": [
+          {
+            "src": "https://pic1.imgdb.cn/item/68d3c3a9c5157e1a882ccd0c.jpg",
+            "alt": "集训群聊二维码",
+            "caption": "集训群聊二维码"
+          }
+        ]
       }
     ]
   },
   {
     "slug": "2025-9-13-nccpc",
     "title": "我院在2025NCCPC中斩获一银一铜",
+    "date": "2025-09-13",
+    "isTop": false,
+    "summary": "南昌邀请赛从百余支队伍中脱颖而出，斩获银铜各一枚",
     "subtitle": "编程竞技展风采，江财学子创佳绩",
     "blocks": [
       {
@@ -162,8 +239,14 @@
       {
         "type": "images",
         "items": [
-          { "src": "https://pic1.imgdb.cn/item/68d3d9c7c5157e1a882cf89a.jpg", "alt": "现场照片1" },
-          { "src": "https://pic1.imgdb.cn/item/68d3d9c8c5157e1a882cf89e.jpg", "alt": "现场照片2" }
+          {
+            "src": "https://pic1.imgdb.cn/item/68d3d9c7c5157e1a882cf89a.jpg",
+            "alt": "现场照片1"
+          },
+          {
+            "src": "https://pic1.imgdb.cn/item/68d3d9c8c5157e1a882cf89e.jpg",
+            "alt": "现场照片2"
+          }
         ]
       },
       {
@@ -199,6 +282,9 @@
   {
     "slug": "2025-9-25-px",
     "title": "2025年新生编程语法培训",
+    "date": "2025-09-25",
+    "isTop": true,
+    "summary": "国庆假期C/C++基础语法培训，带你走出新手村",
     "subtitle": "《Hello, World!》新手村任务！",
     "blocks": [
       {
@@ -213,9 +299,21 @@
         "heading": "活动介绍",
         "icon": "fa-info-circle",
         "cards": [
-          { "icon": "fa-users", "title": "面向广泛零基础受众", "desc": "为不同专业背景的新生提供系统的编程入门培训" },
-          { "icon": "fa-laptop-code", "title": "掌握初步编程能力", "desc": "帮助新生快速建立计算机思维，适应大学编程课程" },
-          { "icon": "fa-lightbulb", "title": "实践与理论相结合", "desc": "通过实际编程练习巩固所学知识，培养解决问题的能力" }
+          {
+            "icon": "fa-users",
+            "title": "面向广泛零基础受众",
+            "desc": "为不同专业背景的新生提供系统的编程入门培训"
+          },
+          {
+            "icon": "fa-laptop-code",
+            "title": "掌握初步编程能力",
+            "desc": "帮助新生快速建立计算机思维，适应大学编程课程"
+          },
+          {
+            "icon": "fa-lightbulb",
+            "title": "实践与理论相结合",
+            "desc": "通过实际编程练习巩固所学知识，培养解决问题的能力"
+          }
         ]
       },
       {
@@ -224,16 +322,30 @@
         "icon": "fa-qrcode",
         "qq": "1065159056",
         "images": [
-          { "src": "/images/px_code.png", "alt": "活动1群", "caption": "活动1群（已满）" },
-          { "src": "/images/px_code2.jpg", "alt": "活动2群", "caption": "活动2群（已满）" },
-          { "src": "/images/px_code4.jpg", "alt": "活动3群", "caption": "活动3群" }
+          {
+            "src": "/images/px_code.png",
+            "alt": "活动1群",
+            "caption": "活动1群（已满）"
+          },
+          {
+            "src": "/images/px_code2.jpg",
+            "alt": "活动2群",
+            "caption": "活动2群（已满）"
+          },
+          {
+            "src": "/images/px_code4.jpg",
+            "alt": "活动3群",
+            "caption": "活动3群"
+          }
         ],
         "note": "扫描二维码加入QQ群，获取最新活动信息"
       },
       { "type": "heading", "text": "活动计划", "icon": "fa-calendar-alt" },
       {
         "type": "text",
-        "paras": ["2025年10月1日至2025年10月7日，共7天。以线上形式（B站直播形式），教授25级新生语法知识，具体安排见下表。"]
+        "paras": [
+          "2025年10月1日至2025年10月7日，共7天。以线上形式（B站直播形式），教授25级新生语法知识，具体安排见下表。"
+        ]
       },
       {
         "type": "table",
@@ -254,12 +366,36 @@
         "heading": "主办部门",
         "icon": "fa-users",
         "items": [
-          { "icon": "fa-code", "name": "程序设计竞赛协会", "qr": "/action/tmp/cxsj.jpg" },
-          { "icon": "fa-desktop", "name": "计算机协会", "qr": "/action/tmp/jsj.jpg" },
-          { "icon": "fa-shield-alt", "name": "网络安全协会", "qr": "/action/tmp/wa.jpg" },
-          { "icon": "fa-chart-line", "name": "信息学习部", "text": "比较是偷走幸福的小偷" },
-          { "icon": "fa-brain", "name": "计算机学习部", "text": "今天不学习，明天惨兮兮" },
-          { "icon": "fa-network-wired", "name": "软件学习部", "text": "越活越年轻，越活越开心" }
+          {
+            "icon": "fa-code",
+            "name": "程序设计竞赛协会",
+            "qr": "/action/tmp/cxsj.jpg"
+          },
+          {
+            "icon": "fa-desktop",
+            "name": "计算机协会",
+            "qr": "/action/tmp/jsj.jpg"
+          },
+          {
+            "icon": "fa-shield-alt",
+            "name": "网络安全协会",
+            "qr": "/action/tmp/wa.jpg"
+          },
+          {
+            "icon": "fa-chart-line",
+            "name": "信息学习部",
+            "text": "比较是偷走幸福的小偷"
+          },
+          {
+            "icon": "fa-brain",
+            "name": "计算机学习部",
+            "text": "今天不学习，明天惨兮兮"
+          },
+          {
+            "icon": "fa-network-wired",
+            "name": "软件学习部",
+            "text": "越活越年轻，越活越开心"
+          }
         ]
       }
     ]
@@ -267,6 +403,9 @@
   {
     "slug": "2025-9-27-px",
     "title": "新生电子扫盲课",
+    "date": "2025-09-27",
+    "isTop": false,
+    "summary": "国庆假期面向零基础新生的计算机操作扫盲培训",
     "subtitle": "《电子文盲与赛博孔子的三天》",
     "blocks": [
       {
@@ -280,9 +419,21 @@
         "heading": "活动介绍",
         "icon": "fa-info-circle",
         "cards": [
-          { "icon": "fa-users", "title": "面向广泛零基础受众", "desc": "面向广大从未接触过电脑的新生，直播教学系统设置、文件管理与快捷键操作，确保“电脑零经验”群体也能在三天内达到大学信息化学习最低门槛，不因基础薄弱而在早期考核中掉队。" },
-          { "icon": "fa-laptop-code", "title": "掌握初步学习办公能力", "desc": "通过案例式精讲Word长文档排版、Excel数据图表、PPT视觉呈现，破解提交文件格式混乱，解决因“不会用、不敢用、用不好”电脑而导致的作业拖延、在线学习掉队等问题。" },
-          { "icon": "fa-lightbulb", "title": "实践与理论相结合", "desc": "系统掌握系统管理、办公软件、网络检索与信息安全四大核心技能，同时培养学生自主获取数字资源与高效表达的能力，为后续专业课程、科研训练及就业竞争奠定扎实的信息化基础。" }
+          {
+            "icon": "fa-users",
+            "title": "面向广泛零基础受众",
+            "desc": "面向广大从未接触过电脑的新生，直播教学系统设置、文件管理与快捷键操作，确保“电脑零经验”群体也能在三天内达到大学信息化学习最低门槛，不因基础薄弱而在早期考核中掉队。"
+          },
+          {
+            "icon": "fa-laptop-code",
+            "title": "掌握初步学习办公能力",
+            "desc": "通过案例式精讲Word长文档排版、Excel数据图表、PPT视觉呈现，破解提交文件格式混乱，解决因“不会用、不敢用、用不好”电脑而导致的作业拖延、在线学习掉队等问题。"
+          },
+          {
+            "icon": "fa-lightbulb",
+            "title": "实践与理论相结合",
+            "desc": "系统掌握系统管理、办公软件、网络检索与信息安全四大核心技能，同时培养学生自主获取数字资源与高效表达的能力，为后续专业课程、科研训练及就业竞争奠定扎实的信息化基础。"
+          }
         ]
       },
       {
@@ -298,10 +449,26 @@
         "heading": "主办部门（点击有惊喜）",
         "icon": "fa-users",
         "items": [
-          { "icon": "fa-code", "name": "数智技术协会", "qr": "/action/tmp/sz.jpg" },
-          { "icon": "fa-code", "name": "程序设计竞赛协会", "qr": "/action/tmp/cxsj.jpg" },
-          { "icon": "fa-desktop", "name": "计算机协会", "qr": "/action/tmp/jsj.jpg" },
-          { "icon": "fa-chart-line", "name": "信息学习部", "text": "比较是偷走幸福的小偷" }
+          {
+            "icon": "fa-code",
+            "name": "数智技术协会",
+            "qr": "/action/tmp/sz.jpg"
+          },
+          {
+            "icon": "fa-code",
+            "name": "程序设计竞赛协会",
+            "qr": "/action/tmp/cxsj.jpg"
+          },
+          {
+            "icon": "fa-desktop",
+            "name": "计算机协会",
+            "qr": "/action/tmp/jsj.jpg"
+          },
+          {
+            "icon": "fa-chart-line",
+            "name": "信息学习部",
+            "text": "比较是偷走幸福的小偷"
+          }
         ]
       }
     ]
@@ -309,11 +476,16 @@
   {
     "slug": "2025-10-1-ans",
     "title": "新生问题大解答",
+    "date": "2025-10-1",
+    "isTop": true,
+    "summary": "欢迎你来！新生关于程设竞赛与入会的常见问题大解答",
     "subtitle": "神秘神秘神秘神秘",
     "blocks": [
       {
         "type": "text",
-        "paras": ["欢迎你来，欢迎你来，欢迎你来，欢迎你来，欢迎你来，欢迎你来，欢迎你来，欢迎你来，欢迎你来，欢迎你来！"]
+        "paras": [
+          "欢迎你来，欢迎你来，欢迎你来，欢迎你来，欢迎你来，欢迎你来，欢迎你来，欢迎你来，欢迎你来，欢迎你来！"
+        ]
       },
       {
         "type": "faq",
@@ -331,8 +503,16 @@
               {
                 "type": "images",
                 "items": [
-                  { "src": "https://pic1.imgdb.cn/item/68dbf489c5157e1a882b171d.png", "alt": "题目图片", "caption": "题目示例" },
-                  { "src": "https://pic1.imgdb.cn/item/68dbf4a0c5157e1a882b1745.png", "alt": "结果图片", "caption": "结果示例" }
+                  {
+                    "src": "https://pic1.imgdb.cn/item/68dbf489c5157e1a882b171d.png",
+                    "alt": "题目图片",
+                    "caption": "题目示例"
+                  },
+                  {
+                    "src": "https://pic1.imgdb.cn/item/68dbf4a0c5157e1a882b1745.png",
+                    "alt": "结果图片",
+                    "caption": "结果示例"
+                  }
                 ]
               }
             ]
@@ -354,18 +534,45 @@
           {
             "q": "Q3. 怎么学习程序设计?",
             "a": [
-              { "type": "text", "paras": ["此处不给出具体的建议，只给出学习平台，仅供参考。"] },
+              {
+                "type": "text",
+                "paras": ["此处不给出具体的建议，只给出学习平台，仅供参考。"]
+              },
               {
                 "type": "platformList",
                 "items": [
-                  { "name": "OI Wiki", "desc": "百科类网站，较完整地涵盖了编程竞赛的知识点，学习资源等，适合用于学习及参考。" },
-                  { "name": "AcWing", "desc": "算法网课及OJ平台，有较为丰富的网课资源，适合前中期入门及初阶段提升。" },
-                  { "name": "洛谷", "desc": "有优质的社区以及题库，适合全阶段特别是中后期的提升。" },
-                  { "name": "牛客", "desc": "倾向于求职备考，但是对于竞赛选手也比较友好，特别是每年暑假的牛客多校比赛。" },
-                  { "name": "Atcoder", "desc": "日本OJ，题目质量较高，比赛时间阳间。" },
-                  { "name": "Codeforces", "desc": "俄罗斯OJ，线上比赛规模大，比赛机制成熟。" },
-                  { "name": "Virtual Judge", "desc": "可以提交大量的其他OJ上的题目，一般用于创建模拟赛。" },
-                  { "name": "PTA", "desc": "天梯赛将在此平台举行，大一新生的程序设计基础课程的编程作业也一般在此平台发布。" }
+                  {
+                    "name": "OI Wiki",
+                    "desc": "百科类网站，较完整地涵盖了编程竞赛的知识点，学习资源等，适合用于学习及参考。"
+                  },
+                  {
+                    "name": "AcWing",
+                    "desc": "算法网课及OJ平台，有较为丰富的网课资源，适合前中期入门及初阶段提升。"
+                  },
+                  {
+                    "name": "洛谷",
+                    "desc": "有优质的社区以及题库，适合全阶段特别是中后期的提升。"
+                  },
+                  {
+                    "name": "牛客",
+                    "desc": "倾向于求职备考，但是对于竞赛选手也比较友好，特别是每年暑假的牛客多校比赛。"
+                  },
+                  {
+                    "name": "Atcoder",
+                    "desc": "日本OJ，题目质量较高，比赛时间阳间。"
+                  },
+                  {
+                    "name": "Codeforces",
+                    "desc": "俄罗斯OJ，线上比赛规模大，比赛机制成熟。"
+                  },
+                  {
+                    "name": "Virtual Judge",
+                    "desc": "可以提交大量的其他OJ上的题目，一般用于创建模拟赛。"
+                  },
+                  {
+                    "name": "PTA",
+                    "desc": "天梯赛将在此平台举行，大一新生的程序设计基础课程的编程作业也一般在此平台发布。"
+                  }
                 ]
               }
             ]
@@ -429,7 +636,10 @@
                   ["外联部", "与其他社团和组织联系合作"]
                 ]
               },
-              { "type": "highlight", "text": "为发挥同学们的主观能动性，此处仅预设协会正常运转所需的必要部门，可根据实际情况进行修改。" }
+              {
+                "type": "highlight",
+                "text": "为发挥同学们的主观能动性，此处仅预设协会正常运转所需的必要部门，可根据实际情况进行修改。"
+              }
             ]
           },
           {
@@ -470,6 +680,42 @@
                 ]
               }
             ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "2026-6-7-ccpc贵州",
+    "title": "2026年CCPC贵州邀请赛荣获银牌",
+    "date": "2026-6-7",
+    "isTop": false,
+    "summary": "贵州邀请赛荣获银牌",
+    "subtitle": "“贵州人”体验卡",
+    "blocks": [
+      {
+        "type": "text",
+        "paras": [
+          "在刚刚结束的2026年CCPC贵州邀请赛中，我校代表衷铭川、万俊哲、张云菲组成的队伍，“喜欢只是错觉”荣获银牌。"
+        ]
+      },
+      {
+        "type": "images",
+        "items": [
+          {
+            "src": "https://pic1.imgdb.cn/item/6a3f8bfd2546dff76d1ca7f3.png",
+            "alt": "获奖团队合影",
+            "caption": "获奖团队合影"
+          },
+          {
+            "src": "https://pic1.imgdb.cn/item/6a3f8bfe2546dff76d1ca7f4.png",
+            "alt": "奖牌照片",
+            "caption": "奖牌照片"
+          },
+          {
+            "src": "https://pic1.imgdb.cn/item/6a3f8bfc2546dff76d1ca7f2.png",
+            "alt": "沿途风景",
+            "caption": "沿途风景"
           }
         ]
       }

@@ -11,19 +11,36 @@ const { data: competitions, loading, error } = useJson('/data/competitions.json'
 const comp = computed(
   () => (competitions.value || []).find((c) => c.slug === route.params.slug)
 )
+
+// 将按年分组的 history 展平为表格行
+const historyRows = computed(() => {
+  if (!comp.value?.history) return []
+  return comp.value.history.flatMap((g) =>
+    (g.entries || []).map((e) => ({ year: g.year, ...e }))
+  )
+})
 </script>
 
 <template>
-  <main class="competition-page">
-    <div class="container">
-      <p v-if="loading" class="hint">加载中…</p>
+  <main class="comp-page container-fluid">
+    <!-- 装饰光斑 -->
+    <div class="decorative-orb decorative-orb--primary" style="width:500px;height:500px;top:-200px;right:-150px;opacity:0.06"></div>
+    <div class="decorative-orb decorative-orb--accent" style="width:350px;height:350px;bottom:10%;left:-120px;opacity:0.04"></div>
+
+    <div class="container comp-inner">
+      <!-- Loading / Error -->
+      <div v-if="loading" class="skeleton-list">
+        <div v-for="n in 3" :key="n" class="skeleton" style="height:200px;border-radius:var(--radius-xl);margin-bottom:var(--space-lg);"></div>
+      </div>
       <p v-else-if="error" class="hint">加载失败</p>
       <p v-else-if="!comp" class="hint">未找到该竞赛</p>
 
       <template v-else>
-        <header class="comp-header">
+        <!-- 标题区 -->
+        <header class="page-hero">
+          <p class="page-label">COMPETITION DETAIL</p>
           <h1>{{ comp.name }}</h1>
-          <p class="subtitle">{{ comp.subtitle }}</p>
+          <p v-if="comp.subtitle" class="page-subtitle">{{ comp.subtitle }}</p>
         </header>
 
         <!-- 简介 -->
@@ -37,176 +54,331 @@ const comp = computed(
 
         <!-- 详情卡片 -->
         <section class="comp-details">
-          <div v-for="d in comp.details" :key="d.title" class="detail-card">
-            <i :class="`fas ${d.icon}`"></i>
+          <div
+            v-for="(d, i) in comp.details"
+            :key="d.title"
+            v-reveal="'scale-in'"
+            :style="{ '--reveal-index': i }"
+            class="detail-card"
+          >
+            <div class="detail-icon">
+              <i :class="`fas ${d.icon}`"></i>
+            </div>
             <h3>{{ d.title }}</h3>
-            <p v-for="(line, i) in d.lines" :key="i">{{ line }}</p>
+            <p v-for="(line, idx) in d.lines" :key="idx">{{ line }}</p>
           </div>
         </section>
 
         <!-- 参赛历史 -->
         <section class="comp-history">
-          <h2>我校参赛历史</h2>
-          <div v-for="g in comp.history" :key="g.year" class="history-group">
-            <div class="history-year">{{ g.year }}</div>
-            <div class="history-entries">
-              <div v-for="(e, i) in g.entries" :key="i" class="history-entry">
-                <h3 v-if="e.title">{{ e.title }}</h3>
-                <p v-if="e.desc">{{ e.desc }}</p>
-                <img v-if="e.image" :src="e.image" :alt="e.title || ''" class="history-image" loading="lazy" />
-              </div>
-              <p v-if="!g.entries.length" class="empty">暂无参赛记录</p>
-            </div>
+          <h2 class="section-label"><i class="fas fa-timeline"></i> 我校参赛历史</h2>
+          <p v-if="!historyRows.length" class="empty">暂无参赛记录</p>
+          <div v-else class="history-table-wrap" v-reveal="'fade-up'">
+            <table class="history-table">
+              <thead>
+                <tr>
+                  <th>年份</th>
+                  <th>赛事</th>
+                  <th>成绩</th>
+                  <th>参赛成员</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(row, i) in historyRows" :key="i">
+                  <td class="cell-year">{{ row.year }}</td>
+                  <td class="cell-title">{{ row.title }}</td>
+                  <td class="cell-desc">{{ row.desc }}</td>
+                  <td class="cell-members">{{ row.members || '—' }}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </section>
 
-        <RouterLink to="/contest" class="back-link">← 返回竞赛信息</RouterLink>
+        <RouterLink to="/contest" class="back-link">
+          <i class="fa-solid fa-arrow-left"></i> 返回竞赛信息
+        </RouterLink>
       </template>
     </div>
   </main>
 </template>
 
 <style scoped>
-.competition-page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px 20px 80px;
+/* ==========================================================================
+   竞赛详情页
+   ========================================================================== */
+.comp-page {
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+  margin-top: calc(-1 * var(--header-height));
+  padding: calc(var(--header-height) + 40px) 0 var(--space-3xl);
+  background:
+    radial-gradient(ellipse 600px 400px at 80% 5%, rgba(26,115,232,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 400px 300px at 15% 90%, rgba(255,152,0,0.03) 0%, transparent 60%),
+    linear-gradient(175deg, #f8fafc 0%, #fff 35%, #fff 100%);
 }
+.comp-inner {
+  position: relative;
+  z-index: 1;
+  width: 90%;
+  margin: 0 auto;
+}
+
 .hint {
   text-align: center;
-  color: var(--text-light);
-  padding: 60px 0;
+  color: var(--text-muted);
+  padding: var(--space-3xl) 0;
+  font-size: var(--font-size-lg);
 }
-.comp-header {
-  text-align: center;
-  margin: 40px 0;
-}
-.comp-header h1 {
-  font-size: 2.5rem;
-  color: var(--primary-dark);
-  margin-bottom: 10px;
-}
-.subtitle {
-  font-size: 1.2rem;
-  color: var(--text-light);
-  font-style: italic;
+.skeleton-list {
+  max-width: 700px;
+  margin: 0 auto;
 }
 
-/* 简介 */
-.comp-intro {
-  display: flex;
-  align-items: center;
-  gap: 40px;
-  margin: 40px 0;
+/* ── 标题区 ── */
+.page-hero {
+  text-align: center;
+  margin-bottom: 56px;
 }
-.comp-logo {
-  width: 200px;
-  height: auto;
-  flex-shrink: 0;
+.page-label {
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: var(--primary);
+  font-weight: 700;
+  margin-bottom: 6px;
 }
-.intro-text h2 {
-  color: var(--text);
-  border-bottom: 2px solid var(--primary);
-  padding-bottom: 10px;
-  margin-bottom: 20px;
-}
-.intro-text p {
+.page-hero h1 {
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  line-height: var(--line-height-tight);
   margin-bottom: 12px;
 }
+.page-subtitle {
+  font-size: var(--font-size-lg);
+  color: var(--text-muted);
+}
 
-/* 详情卡片 */
+/* ── 小节标签 ── */
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+.section-label i { color: var(--primary); }
+
+/* ── 简介 ── */
+.comp-intro {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-xl);
+  margin-bottom: var(--space-2xl);
+}
+.comp-logo {
+  width: 180px;
+  height: auto;
+  flex-shrink: 0;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+}
+.intro-text {
+  flex: 1;
+}
+.intro-text h2 {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-sm);
+  border-bottom: 2px solid rgba(26,115,232,0.12);
+}
+.intro-text p {
+  margin-bottom: var(--space-md);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  color: var(--text-light);
+}
+
+/* ── 详情卡片 ── */
 .comp-details {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-  margin: 40px 0;
+  gap: var(--space-md);
+  margin-bottom: var(--space-2xl);
 }
 .detail-card {
   text-align: center;
-  padding: 20px;
-  border-radius: var(--radius);
-  background: #f9f9f9;
-  box-shadow: var(--shadow);
+  padding: var(--space-xl) var(--space-lg);
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+  transition: transform var(--transition-spring), box-shadow var(--transition), border-color var(--transition);
 }
-.detail-card i {
-  font-size: 2rem;
+.detail-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 28px rgba(26,115,232,0.07);
+  border-color: rgba(26,115,232,0.12);
+}
+.detail-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto var(--space-md);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(26,115,232,0.08), rgba(26,115,232,0.03));
+}
+.detail-icon i {
+  font-size: 1.4rem;
   color: var(--primary);
-  margin-bottom: 15px;
 }
 .detail-card h3 {
-  margin-bottom: 10px;
-  color: var(--primary-dark);
+  margin-bottom: var(--space-sm);
+  color: var(--text);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
 }
 .detail-card p {
   color: var(--text-light);
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
 }
 
-/* 历史 */
+/* ── 参赛历史 ── */
 .comp-history {
-  margin: 60px 0 40px;
-}
-.comp-history > h2 {
-  color: var(--primary-dark);
-  margin-bottom: 30px;
-}
-.history-group {
-  display: flex;
-  gap: 30px;
-  margin-bottom: 30px;
-}
-.history-year {
-  flex-shrink: 0;
-  align-self: flex-start;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-weight: bold;
-  color: #fff;
-  background: var(--primary);
-}
-.history-entries {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 20px;
-  flex: 1;
-}
-.history-entry {
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: var(--radius);
-  background: #fff;
-  box-shadow: var(--shadow);
-}
-.history-entry h3 {
-  color: var(--primary-dark);
-  margin-bottom: 6px;
-}
-.history-entry p {
-  margin-bottom: 12px;
-}
-.history-image {
-  max-width: 100%;
-  border-radius: 4px;
+  margin-bottom: var(--space-xl);
 }
 .empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: var(--space-xl) 0;
+  font-size: var(--font-size-sm);
+}
+.history-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(0,0,0,0.06);
+}
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  font-size: var(--font-size-sm);
+}
+.history-table thead {
+  background: linear-gradient(135deg, rgba(26,115,232,0.04), rgba(26,115,232,0.01));
+}
+.history-table th {
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 700;
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  border-bottom: 2px solid rgba(26,115,232,0.1);
+  white-space: nowrap;
+}
+.history-table th:first-child {
+  padding-left: 24px;
+}
+.history-table th:last-child {
+  text-align: center;
+  padding-right: 24px;
+}
+.history-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  color: var(--text);
+  vertical-align: middle;
+}
+.history-table td:first-child {
+  padding-left: 24px;
+}
+.history-table td:last-child {
+  padding-right: 24px;
+}
+.history-table tbody tr {
+  transition: background var(--transition-fast);
+}
+.history-table tbody tr:hover {
+  background: rgba(26,115,232,0.02);
+}
+.history-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.cell-year {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--primary);
+  white-space: nowrap;
+  width: 1%;
+}
+.cell-title {
+  font-weight: 600;
+}
+.cell-desc {
   color: var(--text-light);
 }
+.cell-members {
+  color: var(--text-light);
+  font-size: var(--font-size-sm);
+}
 
+/* ── 返回链接 ── */
 .back-link {
-  display: inline-block;
-  margin-top: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: var(--space-lg);
+  padding: 10px 24px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(26,115,232,0.15);
   color: var(--primary);
-  font-weight: 500;
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  transition: all var(--transition-spring);
 }
 .back-link:hover {
-  color: var(--primary-dark);
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  transform: translateX(-4px);
+  box-shadow: 0 4px 16px rgba(26,115,232,0.2);
 }
 
+/* ── 响应式 ── */
 @media (max-width: 768px) {
+  .comp-page {
+    padding: calc(var(--header-height) + 30px) 0 var(--space-2xl);
+  }
+  .page-hero h1 {
+    font-size: 2rem;
+  }
   .comp-intro {
     flex-direction: column;
+    align-items: center;
+    text-align: center;
   }
   .comp-logo {
-    margin-bottom: 10px;
+    width: 140px;
+  }
+}
+@media (max-width: 480px) {
+  .page-hero h1 {
+    font-size: 1.7rem;
   }
 }
 </style>

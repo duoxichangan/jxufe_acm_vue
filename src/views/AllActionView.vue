@@ -1,217 +1,460 @@
 <script setup>
-import { ref } from 'vue'
-import { useTimeline } from '../composables/useTimeline'
+import { useTimeline } from "../composables/useTimeline";
 
-const { topEvents, yearGroups, loading } = useTimeline()
-
-// 同一时间只展开一个年份（手风琴）。默认全部展开。
-const openYear = ref(null)
-const toggle = (year) => {
-  openYear.value = openYear.value === year ? null : year
-}
-const isOpen = (year) => openYear.value === null || openYear.value === year
+const { topEvents, yearGroups, loading } = useTimeline();
 </script>
 
 <template>
-  <main class="timeline-page container">
-    <h1 class="page-title">协会大事记</h1>
+  <main class="timeline-page container-fluid">
+    <!-- 装饰光斑 -->
+    <div
+      class="decorative-orb decorative-orb--primary"
+      style="
+        width: 600px;
+        height: 600px;
+        top: -250px;
+        right: -200px;
+        opacity: 0.06;
+      "
+    ></div>
+    <div
+      class="decorative-orb decorative-orb--accent"
+      style="
+        width: 400px;
+        height: 400px;
+        bottom: 10%;
+        left: -150px;
+        opacity: 0.04;
+      "
+    ></div>
+    <div
+      class="decorative-orb decorative-orb--light"
+      style="
+        width: 350px;
+        height: 350px;
+        top: 40%;
+        right: -120px;
+        opacity: 0.04;
+      "
+    ></div>
 
-    <p v-if="loading" class="hint">加载中…</p>
+    <div class="container timeline-inner">
+      <!-- 标题区 -->
+      <header class="page-hero">
+        <p class="page-label">LATEST NEWS</p>
+        <h1>协会<span class="highlight">大事记</span></h1>
+        <p class="page-desc">在岁月的单行道上，拓下所有光影交错的印章。</p>
+      </header>
 
-    <!-- 置顶 -->
-    <RouterLink
-      v-for="(top, i) in topEvents"
-      :key="top.slug"
-      v-reveal
-      :to="`/action/${top.slug}`"
-      class="pinned-event"
-      :style="{ animationDelay: `${0.1 * i}s` }"
-    >
-      <div class="pinned-icon"><i class="fa-solid fa-thumbtack"></i></div>
-      <div class="pinned-content">
-        <h2>{{ top.title }}</h2>
-        <p class="summary">{{ top.summary }}</p>
+      <div v-if="loading" class="skeleton-list">
+        <div
+          v-for="n in 4"
+          :key="n"
+          class="skeleton"
+          style="
+            height: 120px;
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-md);
+          "
+        ></div>
       </div>
-    </RouterLink>
 
-    <!-- 年份分组 -->
-    <div v-for="g in yearGroups" :key="g.year" class="year-block" :class="{ active: isOpen(g.year) }">
-      <button class="year-header" @click="toggle(g.year)">
-        {{ g.year }} <i class="fa-solid fa-chevron-down"></i>
-      </button>
-      <div class="year-content">
-        <div class="timeline">
-          <RouterLink
-            v-for="item in g.items"
-            :key="item.slug"
-            v-reveal
-            :to="`/action/${item.slug}`"
-            class="timeline-item"
+      <template v-else>
+        <!-- 置顶事件 -->
+        <section v-if="topEvents.length" class="pinned-section">
+          <h2 class="section-label">
+            <i class="fa-solid fa-thumbtack"></i> 置顶
+          </h2>
+          <div class="pinned-grid">
+            <RouterLink
+              v-for="(top, i) in topEvents"
+              :key="top.slug"
+              v-reveal="'fade-up'"
+              :style="{ '--reveal-index': i }"
+              :to="`/action/${top.slug}`"
+              class="pinned-card"
+            >
+              <span class="pinned-mark"
+                ><i class="fa-solid fa-thumbtack"></i
+              ></span>
+              <span class="pinned-title">{{ top.title }}</span>
+              <span class="pinned-arrow">→</span>
+            </RouterLink>
+          </div>
+        </section>
+
+        <!-- 时间轴：所有年份平铺，无折叠 -->
+        <section
+          v-for="(g, gi) in yearGroups"
+          :key="g.year"
+          class="year-section"
+        >
+          <h2
+            v-reveal="'fade-up'"
+            :style="{ '--reveal-index': gi }"
+            class="year-heading"
           >
-            <div class="timeline-icon"><i class="fa-solid fa-circle"></i></div>
-            <div class="timeline-content">
-              <span class="date">{{ item.dateStr }}</span>
-              <h3>{{ item.title }}</h3>
-              <p class="summary">{{ item.summary }}</p>
-            </div>
-          </RouterLink>
-        </div>
-      </div>
+            <span class="year-num">{{ g.year }}</span>
+            <span class="year-count">{{ g.items.length }} 件事</span>
+          </h2>
+
+          <div class="timeline">
+            <RouterLink
+              v-for="(item, idx) in g.items"
+              :key="item.slug"
+              :to="`/action/${item.slug}`"
+              v-reveal="'fade-up'"
+              :style="{ '--reveal-index': idx }"
+              class="tl-item"
+              :class="{ right: idx % 2 === 1 }"
+            >
+              <div class="tl-card">
+                <span class="tl-date">{{ item.dateStr }}</span>
+                <h3>{{ item.title }}</h3>
+                <p>{{ item.summary }}</p>
+              </div>
+              <div class="tl-dot"></div>
+            </RouterLink>
+          </div>
+        </section>
+      </template>
     </div>
   </main>
 </template>
 
 <style scoped>
+/* ==========================================================================
+   大事记页
+   ========================================================================== */
 .timeline-page {
-  max-width: 1000px;
-  padding: 40px 20px 80px;
+  position: relative;
+  overflow: hidden;
+  margin-top: calc(-1 * var(--header-height));
+  padding: calc(var(--header-height) + 40px) 0 var(--space-3xl);
+  background:
+    radial-gradient(
+      ellipse 700px 500px at 75% 5%,
+      rgba(26, 115, 232, 0.05) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 500px 400px at 15% 85%,
+      rgba(255, 152, 0, 0.04) 0%,
+      transparent 60%
+    ),
+    linear-gradient(175deg, #f8fafc 0%, #fff 35%, #fff 100%);
 }
-.page-title {
-  text-align: center;
-  font-size: 2.2rem;
-  color: var(--primary-dark);
-  margin-bottom: 40px;
-}
-.hint {
-  text-align: center;
-  color: var(--text-light);
+.timeline-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
 }
 
-/* 置顶事件 */
-.pinned-event {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 30px;
-  padding: 25px 30px;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: #fff;
-  animation: fadeInUp 0.6s ease-out both;
+/* ── 标题区 ── */
+.page-hero {
+  text-align: center;
+  margin-bottom: 56px;
+  padding: 0;
 }
-.pinned-event:hover {
-  color: #fff;
-  filter: brightness(1.05);
-}
-.pinned-icon {
-  font-size: 1.5rem;
-  color: var(--accent);
-}
-.pinned-content h2 {
-  font-size: 1.4rem;
+.page-label {
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: var(--primary);
+  font-weight: 700;
   margin-bottom: 6px;
 }
-.pinned-content .summary {
-  opacity: 0.9;
-  font-size: 0.95rem;
+.page-hero h1 {
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.page-hero h1 .highlight {
+  color: var(--primary);
+  position: relative;
+}
+.page-hero h1 .highlight::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 4px;
+  width: 100%;
+  height: 9px;
+  background: rgba(26, 115, 232, 0.12);
+  border-radius: 2px;
+  z-index: -1;
+}
+.page-desc {
+  font-size: var(--font-size-base);
+  color: var(--text-muted);
+}
+.skeleton-list {
+  max-width: 700px;
+  margin: 0 auto;
 }
 
-/* 年份块 */
-.year-block {
-  margin-bottom: 30px;
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--shadow);
-  background: #fff;
-}
-.year-header {
-  width: 100%;
+/* ── 小节标签 ── */
+.section-label {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 18px 25px;
-  border: none;
-  background: var(--bg-light);
-  color: var(--primary-dark);
-  font-size: 1.3rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background var(--transition);
+  gap: 8px;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
-.year-header:hover {
-  background: var(--bg-dark);
-}
-.year-header i {
-  transition: transform var(--transition);
-}
-.year-block:not(.active) .year-header i {
-  transform: rotate(-90deg);
-}
-.year-content {
-  max-height: 5000px;
-  overflow: hidden;
-  transition: max-height 0.4s ease;
-}
-.year-block:not(.active) .year-content {
-  max-height: 0;
+.section-label i {
+  color: var(--primary);
 }
 
-/* 时间轴 */
-.timeline {
-  position: relative;
-  padding: 20px 25px 30px;
+/* ── 置顶 ── */
+.pinned-section {
+  margin-bottom: var(--space-2xl);
 }
-.timeline::before {
-  content: '';
-  position: absolute;
-  left: 38px;
-  top: 20px;
-  bottom: 20px;
-  width: 2px;
-  background: var(--bg-dark);
+.pinned-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: var(--space-md);
 }
-.timeline-item {
-  position: relative;
+.pinned-card {
   display: flex;
-  gap: 20px;
-  padding: 18px 0 18px 50px;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: var(--radius-lg);
+  color: var(--text);
+  transition:
+    transform var(--transition-spring),
+    box-shadow var(--transition),
+    border-color var(--transition);
+}
+.pinned-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(26, 115, 232, 0.08);
+  border-color: rgba(26, 115, 232, 0.18);
   color: var(--text);
 }
-.timeline-item:hover {
-  color: var(--text);
-}
-.timeline-icon {
-  position: absolute;
-  left: 18px;
-  top: 22px;
-  width: 12px;
-  height: 12px;
+.pinned-mark {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.6rem;
-  color: var(--primary);
-  background: #fff;
-  border: 3px solid var(--primary);
-  border-radius: 50%;
-}
-.timeline-content {
-  flex: 1;
-}
-.timeline-content .date {
+  color: #fff;
   font-size: 0.85rem;
-  color: var(--text-light);
 }
-.timeline-content h3 {
-  font-size: 1.1rem;
-  color: var(--primary-dark);
-  margin: 4px 0;
+.pinned-title {
+  flex: 1;
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.timeline-content .summary {
-  font-size: 0.9rem;
-  color: var(--text-light);
+.pinned-arrow {
+  color: var(--text-muted);
+  transition:
+    transform var(--transition-fast),
+    color var(--transition-fast);
+}
+.pinned-card:hover .pinned-arrow {
+  transform: translateX(4px);
+  color: var(--primary);
 }
 
-@media (max-width: 576px) {
-  .pinned-event {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 20px;
+/* ── 年份标题 ── */
+.year-section {
+  margin-bottom: var(--space-xl);
+}
+.year-heading {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.year-num {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1;
+}
+.year-count {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  background: var(--bg-light);
+  padding: 2px 12px;
+  border-radius: var(--radius-full);
+}
+
+/* ── 时间轴：交错布局 ── */
+.timeline {
+  position: relative;
+  padding: 0 0 var(--space-lg);
+}
+/* 中轴线 */
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(
+    180deg,
+    rgba(26, 115, 232, 0.3) 0%,
+    rgba(26, 115, 232, 0.1) 50%,
+    rgba(26, 115, 232, 0.05) 100%
+  );
+  border-radius: 1px;
+  transform: translateX(-50%);
+}
+
+/* 单项 */
+.tl-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: var(--space-xl);
+  color: var(--text);
+}
+.tl-item:last-child {
+  margin-bottom: 0;
+}
+
+/* 卡片 */
+.tl-card {
+  width: calc(50% - 50px);
+  padding: var(--space-lg);
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition:
+    transform var(--transition-spring),
+    box-shadow var(--transition),
+    border-color var(--transition);
+}
+.tl-item:hover .tl-card {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 32px rgba(26, 115, 232, 0.07);
+  border-color: rgba(26, 115, 232, 0.15);
+}
+.tl-date {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.tl-card h3 {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+  transition: color var(--transition-fast);
+}
+.tl-item:hover .tl-card h3 {
+  color: var(--primary);
+}
+.tl-card p {
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 时间点圆圈 */
+.tl-dot {
+  position: absolute;
+  left: 50%;
+  top: 28px;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--primary);
+  z-index: 1;
+  transition:
+    transform var(--transition-spring),
+    box-shadow var(--transition),
+    background var(--transition);
+}
+.tl-item:hover .tl-dot {
+  transform: translate(-50%, -50%) scale(1.6);
+  background: var(--primary);
+  box-shadow: 0 0 0 10px rgba(26, 115, 232, 0.1);
+}
+
+/* 奇数：卡片在左 */
+.tl-item:not(.right) {
+  justify-content: flex-start;
+}
+.tl-item:not(.right) .tl-card {
+  margin-right: auto;
+}
+
+/* 偶数：卡片在右 */
+.tl-item.right {
+  justify-content: flex-end;
+}
+
+/* ── 响应式 ── */
+@media (max-width: 768px) {
+  .timeline-page {
+    padding: calc(var(--header-height) + 30px) 0 var(--space-2xl);
   }
-  .year-header {
-    font-size: 1.1rem;
-    padding: 15px 18px;
+  .page-hero {
+    margin-bottom: 48px;
+  }
+  .page-hero h1 {
+    font-size: 2rem;
+  }
+  .pinned-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* 移动端：全部左对齐，中轴线移到左边 */
+  .timeline::before {
+    left: 24px;
+  }
+  .tl-item,
+  .tl-item.right {
+    justify-content: flex-start;
+    padding-left: 52px;
+  }
+  .tl-card {
+    width: 100%;
+  }
+  .tl-dot {
+    left: 24px;
+  }
+  .year-num {
+    font-size: 1.5rem;
+  }
+}
+@media (max-width: 480px) {
+  .page-hero h1 {
+    font-size: 1.7rem;
+  }
+  .tl-card {
+    padding: var(--space-md);
   }
 }
 </style>
