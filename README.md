@@ -1,104 +1,121 @@
-# 江西财经大学程序设计竞赛协会官网（Vue 版）
+# 江西财经大学程序设计竞赛协会
 
-由原静态站 `../jxufe-acm.cn` 迁移重构而来。
+江西财经大学 ACM 程序设计竞赛协会官方网站，基于 Vue 3 重构的单页应用（SPA）。
 
-## 技术栈
+## ✨ 特性
 
-Vite 5 + Vue 3（`<script setup>`）+ Vue Router 4。无 UI 框架，样式为手写 CSS（设计令牌 + 组件 scoped）。
+- **Vue 3 组件化** — `<script setup>` + Composition API，页面路由级懒加载，首屏极速
+- **内容数据驱动** — 竞赛、成员、负责人、友链等全部抽离为 JSON，增删改无需改代码
+- **手写 CSS 体系** — 设计令牌（`tokens.css`）+ 全局基础样式 + 组件 scoped，彻底告别类名冲突
+- **滚动入场动画** — 基于 IntersectionObserver 的 `v-reveal` 指令，声明式使用
+- **大事记 Block 渲染** — 类型化的内容块系统，支持文本、图片、奖项、表格、FAQ 等十余种块类型
+- **炫彩交互细节** — 光标涟漪（`useCursorRipple`）、代码拖尾（`useCodeTrail`）、骨架屏（`useSkeleton`）
 
-## 已迁移页面
+## 🛠 技术栈
 
-| 路由 | 页面 | 数据来源 |
-|------|------|----------|
-| `/` | 首页（Hero 轮播 / 宗旨 / 赛事 logo / 最新动态） | `data/news.json` |
-| `/all-action` | 大事记（置顶 + 按年份手风琴时间轴） | `data/news.json` |
-| `/action/:slug` | 大事记详情（9 篇活动报道/培训课/FAQ） | `data/actions.json` |
-| `/contest` | 竞赛信息（卡片网格） | `data/competitions.json` |
-| `/competition/:slug` | 竞赛详情（7 项赛事：简介/详情卡/参赛历史） | `data/competitions.json` |
+| 类别 | 选型 |
+|------|------|
+| 构建工具 | Vite 5 |
+| 框架 | Vue 3（Composition API） |
+| 路由 | Vue Router 4 |
+| 样式 | 手写 CSS（设计令牌 + Scoped） |
+| 图标 | Font Awesome 6（CDN） |
+| UI 框架 | 无 |
+
+## 📄 页面路由
+
+| 路由 | 页面 | 数据源 |
+|------|------|--------|
+| `/` | 首页 — Hero 轮播 · 协会宗旨 · 赛事 Logo · 最新动态 | `useNews.js` |
+| `/all-action` | 大事记 — 置顶条目 + 按年份手风琴时间轴 | `useTimeline.js` |
+| `/action/:slug` | 大事记详情 | `data/actions.json` |
+| `/contest` | 竞赛信息卡片网格 | `data/competitions.json` |
+| `/competition/:slug` | 竞赛详情 | `data/competitions.json` |
 | `/leader` | 协会负责人 | `data/leaders.json` |
 | `/excellent` | 优秀成员 | `data/members.json` |
-| `/links` | 相关链接（官方友链 / 成员站点 / 申请友链） | `data/links.json` |
+| `/links` | 友链 — 官方友链 · 成员站点 · 申请入口 | `data/links.json` |
 
-> 协会负责人虽不在最初的迁移清单里，但用户要求其 JSON 动态加载，故一并迁入。
-
-### 大事记详情的 block schema
-
-`data/actions.json` 每篇为 `{ slug, title, subtitle, blocks: [...] }`，`blocks` 是类型化数组，由 `components/action/BlockRenderer.vue` 渲染。支持的块类型：
-
-`text` / `heading` / `images` / `awards`（获奖卡片）/ `highlight`（引述）/ `partners`（合作高校 logo）/ `list` / `table`（含 rowspan）/ `info`（信息卡片网格）/ `join`（二维码加入）/ `organizers`（可展开招新二维码卡片，`OrganizerGrid.vue`）/ `platformList`（学习平台）/ `faq`（`<details>` 折叠问答，答案可嵌套任意块）。
-
-正文里的 `**加粗**` 与 `[文字](链接)` 由 `utils/inline.js` 渲染（先转义再转换，安全）。
-
-## 目录结构
+## 📁 目录结构
 
 ```
 jxufe-acm-vue/
-├── index.html                 # Vite 入口（仅 Font Awesome CDN + 挂载点）
+├── index.html                     # Vite 入口
 ├── vite.config.js
 ├── public/
-│   ├── data/                  # ★ 全部内容数据（JSON），改内容不改代码
-│   │   ├── news.json
-│   │   ├── contests.json
-│   │   ├── members.json
-│   │   ├── leaders.json
-│   │   └── links.json
-│   ├── images/                # 原样拷贝的图片资源
-│   └── jxufe.png
+│   ├── data/                      # ★ 全部内容数据（JSON）
+│   │   ├── actions.json           # 大事记详情
+│   │   ├── competitions.json      # 竞赛信息 + 详情
+│   │   ├── leaders.json           # 历届负责人
+│   │   ├── members.json           # 优秀成员
+│   │   └── links.json             # 友链
+│   └── images/                    # 静态图片资源
 └── src/
-    ├── main.js                # 挂载 + 全局 CSS + v-reveal 指令
-    ├── App.vue                # 壳：Header / RouterView / Footer / FloatingJoin + 控制台彩蛋
-    ├── router.js              # 6 条路由（懒加载）
+    ├── main.js                    # 入口：挂载 + 全局样式 + 指令注册
+    ├── App.vue                    # 根组件：Header / RouterView / Footer / FloatingJoin
+    ├── router.js                  # 路由配置（全部懒加载）
     ├── styles/
-    │   ├── tokens.css         # 设计令牌（颜色/阴影/圆角/布局变量）
-    │   ├── base.css           # 重置 + 容器 + 按钮 + 标题 + keyframes + reveal
-    │   └── index.css          # 入口
+    │   ├── tokens.css             # 设计令牌（颜色 / 阴影 / 圆角 / 布局变量）
+    │   ├── base.css               # 重置 + 容器 + 按钮 + 标题 + 动画
+    │   └── index.css              # 样式入口
     ├── components/
-    │   ├── AppHeader.vue      # 导航 + 滚动变色 + 汉堡菜单（scoped）
-    │   ├── AppFooter.vue
-    │   └── FloatingJoin.vue   # 右下角“加入我们”悬浮按钮
+    │   ├── AppHeader.vue          # 导航栏（滚动变色 + 汉堡菜单）
+    │   ├── AppFooter.vue          # 页脚
+    │   ├── FloatingJoin.vue       # 右下角悬浮"加入我们"
+    │   └── action/
+    │       ├── BlockRenderer.vue  # 大事记块类型渲染器
+    │       └── OrganizerGrid.vue  # 招新二维码卡片
     ├── composables/
-    │   ├── useJson.js         # 通用 JSON 加载
-    │   ├── useNews.js         # 最新动态（2025 年，含摘要抓取）
-    │   └── useTimeline.js     # 大事记（全部，按年分组）
+    │   ├── useJson.js             # 通用 JSON 加载
+    │   ├── useNews.js             # 最新动态
+    │   ├── useTimeline.js         # 大事记（按年分组）
+    │   ├── useSkeleton.js         # 骨架屏
+    │   ├── useCodeTrail.js        # 代码字符拖尾效果
+    │   └── useCursorRipple.js     # 光标涟漪效果
     ├── directives/
-    │   └── reveal.js          # v-reveal：IntersectionObserver 入场动画
+    │   └── reveal.js              # v-reveal 滚动入场动画
     ├── data/
-    │   └── navigation.js      # 导航 / 页脚链接（to=站内路由，href=未迁移）
-    └── views/                 # 6 个页面，各自 scoped 样式
+    │   └── navigation.js          # 导航 / 页脚链接
+    └── views/                     # 8 个页面组件（各自 Scoped 样式）
 ```
 
-## 相对原站的关键改进
-
-- **组件系统**：原 `ComponentLoader` + 占位符 + `../` 路径前缀自适应全部移除，改为 Vue 原生组件 + RouterLink，资源走 `/` 绝对路径。
-- **内容数据化**：原硬编码在 HTML / JS 类里的竞赛、成员、负责人、友链全部抽成 `public/data/*.json`，加人加赛事只改 JSON。
-- **CSS 去屎山**：原 1500+ 行 `style_v1.css` + 5 个页面 CSS 重复严重、跨页类名冲突（如 `.member-card` / `.members-grid` 在优秀成员页和友链页含义不同）。重构为：
-  - 全局只留 `tokens.css`（变量）+ `base.css`（重置/容器/按钮/动画/工具），单一来源；
-  - 页面专属样式下沉到各 `.vue` 的 `<style scoped>`，类名冲突天然消除，媒体查询不再散落重复。
-- **滚动动画**：原 `main.js` 往 DOM 塞 `<style>` + 手动滚动监听，改为 `v-reveal` 指令（IntersectionObserver），声明式使用。
-- **路由级代码分割**：每个页面懒加载，首屏只下首页代码。
-
-## 已知限制
-
-- 导航中“大移民计划 / 每日打卡”尚未迁移，仍为普通 `<a>` 链接。
-- 大事记/竞赛的详情页内图片均使用原始外链（imgdb / bing 图床）或本地 `public/images`、`public/competition`、`public/action/tmp` 资源；外链图失效需在 JSON 里更换地址。
-
-## 开发
+## 🚀 本地开发
 
 ```bash
+# 安装依赖
 npm install
-npm run dev        # http://localhost:5173
-npm run build      # 产物 dist/
+
+# 启动开发服务器 → http://localhost:5173
+npm run dev
+
+# 构建生产版本 → dist/
+npm run build
+
+# 预览生产构建
 npm run preview
 ```
 
-## 维护速查
+## 📝 内容维护
 
-- 加竞赛：编辑 `public/data/contests.json`
-- 加优秀成员：编辑 `public/data/members.json`
-- 加负责人：编辑 `public/data/leaders.json`
-- 加友链：编辑 `public/data/links.json`
-- 加新闻 / 大事记条目：编辑 `public/data/news.json`（列表摘要）
-- 加大事记详情正文：编辑 `public/data/actions.json`（同 slug）
-- 加竞赛详情：编辑 `public/data/competitions.json`（卡片区 + detail 区同源）
-- 改导航：编辑 `src/data/navigation.js`
-- 改配色：编辑 `src/styles/tokens.css`
+所有内容存放在 `public/data/` 下，修改后刷新即可生效，无需重启或重新构建：
+
+| 操作 | 编辑文件 |
+|------|----------|
+| 加 / 改竞赛 | `competitions.json` |
+| 加 / 改优秀成员 | `members.json` |
+| 加 / 改负责人 | `leaders.json` |
+| 加 / 改友链 | `links.json` |
+| 加大事记详情 | `actions.json` |
+| 改导航菜单 | `src/data/navigation.js` |
+| 改主题配色 | `src/styles/tokens.css` |
+
+### 大事记 Block 类型
+
+`actions.json` 中每条大事记的 `blocks` 数组支持以下类型：
+
+`text` · `heading` · `images` · `awards`（获奖卡片）· `highlight`（引述）· `partners`（合作高校 Logo）· `list` · `table` · `info`（信息卡片网格）· `join`（二维码加入）· `organizers`（招新二维码）· `platformList`（学习平台）· `faq`（折叠问答，答案可嵌套任意块）
+
+正文中 `**加粗**` 和 `[文字](链接)` 由内联解析器自动转换。
+
+---
+
+> 由原静态站 `jxufe-acm.cn` 迁移重构而来，去除了大量历史遗留问题（CSS 冲突、硬编码内容、手写 DOM 操作），以现代化前端工程体系重新组织。
