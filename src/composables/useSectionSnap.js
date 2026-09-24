@@ -1,4 +1,5 @@
 import { onMounted, onUnmounted } from 'vue'
+import { BODY_WALL_SHEET } from '../utils/domMarkers.js'
 
 /**
  * 主页「按部分对齐」的滚轮吸附（会长 2026-09-23）。
@@ -82,9 +83,10 @@ export function useSectionSnap(sectionIds) {
   }
 
   /** 成员卡浮窗开着时，滚轮归浮窗自己（它的正文本就可滚）。
-      HeroAvatarWall 开卡时会给 body 挂 `hero-wall-sheet` 并锁掉 body 的 overflow，
+      HeroAvatarWall 开卡时会给 body 挂 `hero-wall-sheet`（常量 BODY_WALL_SHEET，见 utils/domMarkers.js）
+      并锁掉 body 的 overflow，
       这里不站开的话会 preventDefault，浮窗正文就滚不动了。 */
-  const sheetOpen = () => document.body.classList.contains('hero-wall-sheet')
+  const sheetOpen = () => document.body.classList.contains(BODY_WALL_SHEET)
 
   /** 滚轮 = 桌面。位移量取**原始** deltaY（浏览器真正会滚多少），不是阻尼后的值 ——
       吸附判据要比的是「这一格滚下去会不会露出下一部分」。deltaMode 1 = 行、2 = 页。 */

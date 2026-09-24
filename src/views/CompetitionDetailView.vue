@@ -433,7 +433,7 @@ function setView(v) {
 
           <p v-else-if="!hasTableData" class="empty">暂无参赛记录</p>
           <div v-else class="history-table-wrap" v-reveal="{ variant: 'fade-up', threshold: 0.01, rootMargin: '0px 0px 100px 0px' }">
-            <table class="history-table" :class="{ 'view-hidden': viewMode !== 'table' }">
+            <table v-if="viewMode === 'table'" class="history-table">
               <thead>
                 <tr>
                   <template v-if="gpltGroups.length">
@@ -509,8 +509,12 @@ function setView(v) {
               </tbody>
             </table>
 
-            <!-- 卡片视图（桌面/移动均可用；移动端默认，可切换） -->
-            <div v-if="hasTableData" class="team-cards-mobile" :class="{ 'view-hidden': viewMode !== 'card' }">
+            <!-- 卡片视图（桌面/移动均可用；移动端默认，可切换）。
+                 ⚠ 它与上面那张表格是**同一批数据的两种排布**：成员名（.member-name / rankText）、
+                 奖牌小签（.award-chip ↔ .m-award）、名次小签各自写了一遍。元素与类名不同
+                 （<td> ↔ <div>），合不成一个组件；2026-09-24 起两者不再同时挂在 DOM 上
+                 （v-if / v-else 二选一），但改排布口径时**两张都要改**。 -->
+            <div v-else class="team-cards-mobile">
               <!-- 天梯赛式 -->
               <div v-for="g in gpltGroups" :key="'m' + g.session" class="m-group">
                 <div class="m-group-head">
@@ -798,7 +802,7 @@ function setView(v) {
   padding-bottom: 0;
   border-bottom: none;
 }
-/* .view-toggle / .view-btn / .view-hidden 已提到 styles/view-toggle.css（全局）——
+/* .view-toggle / .view-btn 已提到 styles/view-toggle.css（全局）——
    会长 2026-09-23 要求「荣誉显示」也复用同一套，两处样式从此同源，不要再拷回这里。 */
 
 /* ── 蓝桥杯总名单（个人赛：姓名/科目/奖项，按年分组；每年国赛/省赛两个卡片）── */
@@ -894,7 +898,8 @@ function setView(v) {
 /* 卡片视图：外层无框线（卡片自带边框，避免双重框线）。
    注意：不能用 JS 动态 class 控制（Vue 整体赋值 className 会抹掉 v-reveal 加的 is-visible），
    用 :has() 按"卡片视图可见"的结构状态判定 */
-.history-table-wrap:has(.team-cards-mobile:not(.view-hidden)) {
+/* 2026-09-24：卡片树改成 v-else 按需挂载后，判据就是「它在不在」（不再需要 :not(.view-hidden)）。 */
+.history-table-wrap:has(.team-cards-mobile) {
   border: none;
 }
 .history-table-wrap {
@@ -974,7 +979,7 @@ function setView(v) {
   font-weight: 400;
 }
 
-/* ── 卡片视图（桌面/移动共用；显隐由 .view-hidden 控制）── */
+/* ── 卡片视图（桌面/移动共用；显隐由模板 v-if / v-else 按需挂载（见 .history-table-wrap））── */
 .team-cards-mobile {
   width: 100%;
 }
