@@ -1,0 +1,62 @@
+{
+  "updated": "2026-10-02",
+  "note": "近期赛事时间表的手写真源（会长维护、入库）。页面把它与构建期抓取的 schedule.auto.json 合并，**手写优先**（判重键 = 赛事+日期，见 src/utils/scheduleView.js）。纪律：只写有依据的日期；日期未定的写进 pending，不要编日期。⚠ **pending（时间待定）那两块 2026-10-02 由会长要求不再展示**：原两条协会自办条目（「程序设计竞赛协会招新选拔（新生赛）· 2026 年 10 月初」「江西财经大学第四届程序设计竞赛（JCPC）· 2027 年 4 月中旬（拟定）」，依据《2026-2027学年工作计划》）已移除，故 pending 现为空。**机制保留** —— 以后真要摆出「日期待定」的场次，往 pending 里加一条，页面会自动长出那一块（组件在 pending 为空时整块不渲染）。**xCPC 场次的名字要写成标准形式**（ICPC/CCPC全国赛（xx）、ICPC亚洲区域赛（xx）、CCPC女生专场（xx）… 共 11 种，见 scripts/lib/schedule-parse.mjs 的 XCPC_TITLE_RES；2026-10-02 统一，此前写作「CCPC 长春国赛」）。字段说明与维护办法见 README《近期赛事时间表》一节。",
+  "items": [
+    {
+      "contest": "ccpc",
+      "title": "CCPC全国赛（长春）",
+      "stage": "分站赛",
+      "start": "2026-10-17",
+      "end": "2026-10-18",
+      "link": "https://ccpc.io/",
+      "source": "CCPC 官网《2026 CCPC 各场比赛安排》",
+      "tentative": true,
+      "note": "东北师范大学承办；官网原文标注「暂定」，以各站报名通知为准"
+    },
+    {
+      "contest": "ccpc",
+      "title": "CCPC女生专场（成都）",
+      "stage": "女生专场",
+      "start": "2026-10-31",
+      "end": "2026-11-01",
+      "link": "https://ccpc.io/",
+      "source": "CCPC 官网《2026 CCPC 各场比赛安排》",
+      "tentative": true,
+      "note": "成都信息工程大学承办；官网原文标注「暂定」"
+    },
+    {
+      "contest": "ccpc",
+      "title": "CCPC全国赛（乐山）",
+      "stage": "分站赛",
+      "start": "2026-11-07",
+      "end": "2026-11-08",
+      "link": "https://ccpc.io/",
+      "source": "CCPC 官网《2026 CCPC 各场比赛安排》",
+      "tentative": true,
+      "note": "电子科技大学承办；官网原文标注「暂定」"
+    },
+    {
+      "contest": "ccpc",
+      "title": "CCPC全国赛（荆州）",
+      "stage": "分站赛",
+      "start": "2026-11-14",
+      "end": "2026-11-15",
+      "link": "https://ccpc.io/",
+      "source": "CCPC 官网《2026 CCPC 各场比赛安排》",
+      "tentative": true,
+      "note": "南京大学承办；官网原文标注「暂定」"
+    },
+    {
+      "contest": "ccpc",
+      "title": "CCPC全国赛（厦门）",
+      "stage": "分站赛",
+      "start": "2026-11-21",
+      "end": "2026-11-22",
+      "link": "https://ccpc.io/",
+      "source": "CCPC 官网《2026 CCPC 各场比赛安排》",
+      "tentative": true,
+      "note": "上海交通大学承办；官网原文标注「暂定」"
+    }
+  ],
+  "pending": []
+}

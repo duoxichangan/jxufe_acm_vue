@@ -31,13 +31,24 @@ set REMOTE_PATH=/var/www/jxufe_acm_vue
 set SITE_URL=https://jxufe-acm.cn
 
 :: ---- Local config (leave as is) ----
-:: The "prebuild" hook in package.json runs these TWO generators on the server
+:: The "prebuild" hook in package.json runs these THREE generators on the server
 :: during "npm run build":
 ::   scripts/gen_group_wall.mjs    club member wall (group_wall.*.json + excellent_members.json)
 ::                                 from group_members.json, duties.json, scholarships.json,
 ::                                 wall_rules.json, awards/ and the two site rosters.
 ::   scripts/gen_event_badges.mjs  timeline medal badges (event_badges.json) from awards/ + events/.
-::   scripts/lib/data-io.mjs       data-file read policy imported by BOTH generators.
+::   scripts/gen_schedule.mjs      upcoming-contest schedule (schedule.auto.json) fetched from the
+::                                 contest sites (CCPC / ICPC Beijing / Baidu Star / Chuanzhi / Codeforces /
+::                                 AtCoder / RAICOM / Lanqiao-announcements). It is FAIL-SOFT on
+::                                 purpose: every source is fetched in parallel with a timeout and a
+::                                 one-shot retry, a failing source only warns, and the script always
+::                                 exits 0 - a flaky official site must never break a deploy.
+::                                 Skip the fetch entirely with:  set SCHEDULE_SKIP_FETCH=1
+::                                 Manual handling of the same data: public/data/schedule.json
+::                                 ("npm run data:schedule" refetches locally).
+::   scripts/lib/data-io.mjs       data-file read policy imported by BOTH wall generators.
+::   scripts/lib/schedule-parse.mjs date/HTML parsers for the schedule fetcher (unit-tested in
+::                                 test/schedule-parse.test.mjs against the official sites' real text).
 ::                                 The whole scripts\lib dir is uploaded, so future
 ::                                 shared helpers come along automatically.
 :: ALL of the above must be uploaded - miss one and the server build fails outright
@@ -49,7 +60,7 @@ set SITE_URL=https://jxufe-acm.cn
 ::                                 out of predev/prebuild as well. Run it by hand if ever needed:
 ::                                 "npm run data:hero-wall".
 ::   scripts/*.ps1                 thumbnail generators (PowerShell, Windows only, local only).
-set UPLOAD_ITEMS=src public package.json package-lock.json vite.config.js index.html scripts\lib scripts\gen_group_wall.mjs scripts\gen_event_badges.mjs
+set UPLOAD_ITEMS=src public package.json package-lock.json vite.config.js index.html scripts\lib scripts\gen_group_wall.mjs scripts\gen_event_badges.mjs scripts\gen_schedule.mjs
 set KEY_FILE=%~dp0.deploy\id_ed25519
 set TAR_FILE=%TEMP%\jxufe_acm_deploy.tar.gz
 set REMOTE_TAR=/tmp/jxufe_acm_deploy.tar.gz
@@ -116,7 +127,7 @@ if errorlevel 1 (
     echo [WARN] not a git working tree - the uncommitted-changes guard is OFF.
     goto :pack_do
 )
-for /f "delims=" %%L in ('git status --porcelain -- src public package.json package-lock.json vite.config.js index.html scripts/lib scripts/gen_group_wall.mjs scripts/gen_event_badges.mjs 2^>nul') do (
+for /f "delims=" %%L in ('git status --porcelain -- src public package.json package-lock.json vite.config.js index.html scripts/lib scripts/gen_group_wall.mjs scripts/gen_event_badges.mjs scripts/gen_schedule.mjs 2^>nul') do (
     set DIRTY=1
     echo [DIRTY] %%L
 )

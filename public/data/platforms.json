@@ -1,0 +1,29 @@
+{
+  "note": "线上平台与第三方赛站的图标/简称 —— **只**服务竞赛信息页的「近期赛事」表（行首那个大 logo 与 alt 文本），不是本站要参加的大赛。为什么不写进 competitions.json：那份数据每一条都会在竞赛卡片网格里长出一张大卡，并参与奖项文件、届次映射等校验，而这些平台我们并不「参赛」，只是赛程的来源。新增一个平台：把图放进 public/images/contest/，在这里加一条；slug 必须与 schedule.json / schedule.auto.json 里的 contest 字段一致（scripts/check_awards.mjs 会逐条核对图标文件是否真的存在）。",
+  "items": [
+    {
+      "slug": "codeforces",
+      "name": "Codeforces",
+      "shortName": "Codeforces",
+      "image": "/images/contest/codeforces.png",
+      "url": "https://codeforces.com/contests",
+      "note": "俄罗斯 Codeforces 平台，每周 1~2 场；原图只有 101×89，行内按接近原生尺寸显示"
+    },
+    {
+      "slug": "atcoder",
+      "name": "AtCoder",
+      "shortName": "AtCoder",
+      "image": "/images/contest/atcoder.png",
+      "url": "https://atcoder.jp/contests/",
+      "note": "日本 AtCoder 平台（ABC / ARC / AGC）；官网按日本时间公布，表内显示北京时间"
+    },
+    {
+      "slug": "nowcoder",
+      "name": "牛客竞赛",
+      "shortName": "牛客",
+      "image": "/images/contest/nowcoder.png",
+      "url": "https://ac.nowcoder.com/acm/contest/calendar",
+      "note": "牛客网比赛日历：牛客周赛 / 挑战赛 / 小白月赛 / 集训派对等。牛客那份日历是**聚合**的（也列 AtCoder），抓取层只收 ojName=NowCoder 的场次，AtCoder 交给更权威的 atcoder 源"
+    }
+  ]
+}
