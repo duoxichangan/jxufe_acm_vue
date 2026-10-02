@@ -228,32 +228,44 @@ test('xCPC 合并：判据、子项、奖项文件都由 competitions.json 决�
 })
 
 /* ── 10. 排名加载的超时策略：超时只是「先按原序渲染」，迟到的排名照样生效 ──
-   2026-09-24 修掉的 bug：超时先到时把 byName 置成空 Map 并用它挡住重跑 → 3 秒后才回来的
-   排名被永久丢弃。下面三条钉住新契约（迟到的生效 / 及时的只应用一次 / 失败不抛给回调）。 */
-test('排名超时：先按原序渲染一次，迟到的那份再覆盖上去', async () => {
+   2026-09-24 修过两次，两次的坑都钉在下面：
+   ① 超时先到时把 byName 置成空 Map 并用它挡住重跑 → 3 秒后才回来的排名被永久丢弃；
+   ② 改成 `onApply(null)` 之后，页面把「排名为 null」当骨架屏条件 → 降级被原样抵消、
+      网格一直等到真排名回来。现在契约是：**onApply 只拿真实排名**，超时/失败走 onTimeout。 */
+test('排名超时：onTimeout 先放行渲染，迟到的排名随后覆盖上去', async () => {
   const applied = []
+  const timeouts = []
   const load = () =>
     new Promise((resolve) => setTimeout(() => resolve({ byName: new Map([['a', { rank: 1 }]]) }), 5))
-  await rankWithTimeout([{ name: 'a' }], { timeoutMs: 1, load, onApply: (m) => applied.push(m) })
-  assert.equal(applied.length, 2, '一次给原序、一次给真实排名')
-  assert.equal(applied[0], null)
-  assert.ok(applied[1] instanceof Map)
-  assert.equal(applied[1].get('a').rank, 1)
+  await rankWithTimeout([{ name: 'a' }], {
+    timeoutMs: 1,
+    load,
+    onApply: (m) => applied.push(m),
+    onTimeout: () => timeouts.push(true),
+  })
+  assert.equal(timeouts.length, 1, '超时只报一次「先按原序渲染」')
+  assert.equal(applied.length, 1, 'onApply 只拿真实排名，不再拿 null')
+  assert.ok(applied[0] instanceof Map)
+  assert.equal(applied[0].get('a').rank, 1)
 })
 
-test('排名及时：只应用一次，不会先闪一下 JSON 原序', async () => {
+test('排名及时：只放行一次，不会先闪一下 JSON 原序', async () => {
   const applied = []
+  const timeouts = []
   await rankWithTimeout([{ name: 'a' }], {
     timeoutMs: 1000,
     load: async () => ({ byName: new Map([['a', { rank: 3 }]]) }),
     onApply: (m) => applied.push(m),
+    onTimeout: () => timeouts.push(true),
   })
   assert.equal(applied.length, 1)
   assert.equal(applied[0].get('a').rank, 3)
+  assert.deepEqual(timeouts, [], '没超时就不该报「先按原序渲染」')
 })
 
 test('排名加载抛错：退回原序，且不留下未处理的 rejection', async () => {
   const applied = []
+  const timeouts = []
   const orphans = []
   const onUnhandled = (err) => orphans.push(err)
   process.on('unhandledRejection', onUnhandled)
@@ -263,10 +275,12 @@ test('排名加载抛错：退回原序，且不留下未处理的 rejection', a
       throw new Error('boom')
     },
     onApply: (m) => applied.push(m),
+    onTimeout: () => timeouts.push(true),
   })
   await new Promise((r) => setTimeout(r, 5)) // 给 unhandledRejection 一个冒头的机会
   process.off('unhandledRejection', onUnhandled)
-  assert.deepEqual(applied, [null])
+  assert.deepEqual(applied, [], '失败不调 onApply —— 页面不必分辨 null')
+  assert.equal(timeouts.length, 1, '失败也要放行渲染，否则页面永远停在骨架屏')
   assert.equal(out, null)
   assert.deepEqual(orphans, [])
 })

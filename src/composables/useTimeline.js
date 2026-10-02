@@ -79,6 +79,10 @@ export function useTimeline() {
       .map((y) => ({ year: y, items: [...cache.get(y)].sort(byDateDesc) }))
   }
 
+  /** 读不到的年份（供页面按需提示）—— 失败的年份进不了 loadedYears，光看列表分辨不出
+      「这年没事件」和「这年没拉下来」，所以单独记一份。 */
+  const failedYears = ref([])
+
   /** 懒加载某一年（已加载则直接返回） */
   async function loadOneYear(year) {
     const y = String(year)
@@ -91,14 +95,22 @@ export function useTimeline() {
       cache.set(y, buildNodes(data.cards, y))
       if (!loadedYears.value.includes(y)) loadedYears.value = [...loadedYears.value, y]
       refreshGroups()
+    } catch (e) {
+      /* 失败必须留痕（原先只有 finally，异常直接往外抛：年份静默不出现、控制台一条
+         无人接管的 rejection，用户分不清「这年没事件」和「这年没拉下来」）。
+         这里不写 cache，下一次点击还会重试。 */
+      if (!failedYears.value.includes(y)) failedYears.value = [...failedYears.value, y]
+      console.warn(`[useTimeline] ${y} 年的大事记没读到：`, e)
     } finally {
       pendingYears.value = pendingYears.value.filter((x) => x !== y)
     }
   }
 
-  /** 加载全部年份（供侧栏「全部」使用；并发发起，逐年出现） */
+  /** 加载全部年份（供侧栏「全部」使用；并发发起，逐年出现）
+      allSettled 而不是 all：调用方是 AllActionView 的 showAll() —— 它既不接返回值也不 catch，
+      单年失败会变成一条未处理的 rejection。loadOneYear 自己已经不抛了，这里是第二道保险。 */
   function loadAllYears() {
-    return Promise.all(years.value.map((y) => loadOneYear(y)))
+    return Promise.allSettled(years.value.map((y) => loadOneYear(y)))
   }
 
   // ── 以下全部由已加载的数据实时派生，不依赖任何索引文件 ──
@@ -145,6 +157,7 @@ export function useTimeline() {
     topEvents,
     yearGroups,
     loadedYears,
+    failedYears,
     loadYear: loadOneYear,
     loadAllYears,
     pendingYears,

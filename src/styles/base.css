@@ -192,6 +192,15 @@ a, button, [role="button"], input, select, textarea {
   100% { opacity: 0;   transform: translateY(-40px) scale(0.6); }
 }
 
+/* 窄屏关掉代码拖尾。⚠ 必须写在这里：容器是 JS 建在 <body> 下的（没有页面作用域的
+   data-v 属性），页面里那条 `.code-trail-container` 永远命中不到（2026-09-24 从
+   HomeView.vue 搬来）。 */
+@media (max-width: 768px) {
+  .code-trail-container {
+    display: none;
+  }
+}
+
 /* ---- 光标涟漪特效 ---- */
 .ripple-layer {
   position: fixed;

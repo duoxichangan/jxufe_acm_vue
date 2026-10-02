@@ -1,25 +1,51 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { navLinks } from '../data/navigation'
+
+const route = useRoute()
 
 const scrolled = ref(false)
 const menuOpen = ref(false)
 
+/** 滚过头部高度就算「已滚动」。它与 --header-height 同值但不同义（那是布局高度），
+    所以不复用令牌、只在这里命名，改头部高度时两个都要看。 */
+const SCROLL_THRESHOLD = 80
+
 const onScroll = () => {
-  scrolled.value = window.scrollY > 80
+  scrolled.value = window.scrollY > SCROLL_THRESHOLD
 }
+/* 「点空白关菜单」用 `#app > header` 而不是 `header`：站内还有 <header class="page-hero">
+   （AllActionView / ContestView 等），按标签名找「自己」只是因为 AppHeader 恰好排在
+   <main> 之前才成立 —— 顺序一变就会静默失效。HeroAvatarWall.vue 的 headerBottom() 踩过同一个坑。 */
 const onDocumentClick = (e) => {
-  const headerEl = document.querySelector('header')
+  const headerEl = document.querySelector('#app > header')
   if (headerEl && !headerEl.contains(e.target)) menuOpen.value = false
 }
+/** Esc 关菜单。≥993px 没有覆盖层、用不到；≤992px 下覆盖层铺满视口，这是「点链接跳走」
+    之外唯一的出口（见 .menu-toggle 那段注释）。 */
+const onKeydown = (e) => {
+  if (e.key === 'Escape' && menuOpen.value) menuOpen.value = false
+}
+/** 路由一变就收起菜单：AppHeader 在 <RouterView> 之外、实例跨导航存活，而浏览器前进/后退
+    不产生 click（点链接关菜单靠的是 RouterLink 上的 @click），不主动收就会留一张全屏菜单
+    盖在新页面上。 */
+watch(
+  () => route.fullPath,
+  () => {
+    menuOpen.value = false
+  }
+)
 
 onMounted(() => {
   window.addEventListener('scroll', onScroll, { passive: true })
   document.addEventListener('click', onDocumentClick)
+  window.addEventListener('keydown', onKeydown)
 })
 onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
   document.removeEventListener('click', onDocumentClick)
+  window.removeEventListener('keydown', onKeydown)
 })
 </script>
 
@@ -86,7 +112,9 @@ header.scrolled {
   justify-content: space-between;
   align-items: center;
   padding: 0 var(--space-md);
-  height: 80px;
+  /* 高度只认令牌（tokens.css 的 --header-height）：写死字面量的话，改令牌会移动全站
+     内容偏移（base.css 的 padding-top）却不动头部自身，两者错位且不报错。 */
+  height: var(--header-height);
 }
 
 /* ---- Logo ---- */
@@ -172,6 +200,13 @@ nav a.router-link-active::after {
 .menu-toggle {
   display: none;
   flex-shrink: 0;
+  /* ⚠ 这里必须自带定位 + z-index：≤992px 下 nav ul 是 position: fixed; inset: 0 的全屏
+     覆盖层（见下面的媒体查询），它是**定位后代**，按 CSS 2.1 附录 E 的绘制顺序画在非定位的
+     按钮之上（步骤 6 在步骤 3/5 之后）→ 菜单一开，按钮既看不见也点不到，收起菜单的路只剩
+     「点一个链接跳走」。加相对定位把它抬回覆盖层之上（与覆盖层同在 header 这个层叠上下文里，
+     所以 2 足够；覆盖层自身是 z-index: auto）。 */
+  position: relative;
+  z-index: 2;
   background: none;
   border: none;
   padding: 10px;

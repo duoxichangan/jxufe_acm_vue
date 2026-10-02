@@ -506,12 +506,13 @@ export async function loadMemberRanking(members = []) {
  * @param {object} [opts]
  * @param {number} [opts.timeoutMs=3000] 先按原序渲染的等待上限
  * @param {(members:object[]) => Promise<{byName:Map}|null>} [opts.load] 只为可测而注入，默认走站点数据
- * @param {(byName:Map|null) => void} [opts.onApply] null = 先按原顺序；真实排名回来后再调一次
+ * @param {(byName:Map) => void} [opts.onApply] 只给**真实**排名（可能调两次：先及时的那份，后迟到的那份）
+ * @param {() => void} [opts.onTimeout] 「可以按原顺序渲染了」的信号（超时降级，或加载直接失败）
  * @returns {Promise<{byName:Map}|null>} 最终生效的那次结果（加载失败 / 始终没回来 = null）
  */
 export async function rankWithTimeout(
   members = [],
-  { timeoutMs = 3000, load = loadMemberRanking, onApply } = {}
+  { timeoutMs = 3000, load = loadMemberRanking, onApply, onTimeout } = {}
 ) {
   /* 失败一律折算成 null：这一层不该把 rejection 抛给 watch 回调（那会变成未处理的 rejection ——
      页面上什么都没发生，控制台里一条红字）。真实原因由 loadHonorRecords 的降级信号报出来。 */
@@ -535,7 +536,11 @@ export async function rankWithTimeout(
     onApply?.(first.byName)
     return first
   }
-  onApply?.(null) // 先按原顺序渲染，别把网格卡在骨架屏上
+  /* 超时（或加载失败）：给页面一个「可以按原顺序渲染了」的信号 —— **不是**「还没准备好」。
+     2026-09-24 踩过：原先这里回调 `onApply(null)`，而 ExcellentView 的模板拿「排名为 null」
+     当骨架屏条件，这条降级被原样抵消 —— 网格一直等到真排名回来（慢网下远超 3 秒），
+     「3 秒先按原序渲染」这条契约事实上从未生效。改成本回调之后，页面不必再分辨 null。 */
+  onTimeout?.()
   const late = await ranking // 等的是同一个 promise：迟到的排名仍然生效
   if (late) onApply?.(late.byName)
   return late

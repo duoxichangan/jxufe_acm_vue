@@ -46,16 +46,11 @@ onUnmounted(() => {
 const heroEl = ref(null);
 const mx = ref(0); // 0..1 鼠标在 hero 中的相对位置
 const my = ref(0);
-const mouseX = ref(0); // 像素坐标
-const mouseY = ref(0);
-
 const onMouseMove = (e) => {
   if (!heroEl.value) return;
   const rect = heroEl.value.getBoundingClientRect();
   mx.value = (e.clientX - rect.left) / rect.width;
   my.value = (e.clientY - rect.top) / rect.height;
-  mouseX.value = e.clientX;
-  mouseY.value = e.clientY;
   // 浮动形状排斥
   updateShapeRepel(e.clientX, e.clientY);
   // 磁吸按钮
@@ -64,7 +59,26 @@ const onMouseMove = (e) => {
 const onMouseLeave = () => {
   mx.value = 0.5;
   my.value = 0.5;
+  /* 形状偏移的唯一衰减在 updateShapeRepel 里，而它只被 mousemove 调用 —— 鼠标一离开 hero
+     就没人再衰减，被推开的形状冻在最后那个偏移上。这里归零，让它们回到基准位置。 */
+  floatingShapes.value.forEach((s) => {
+    s.offsetX = 0;
+    s.offsetY = 0;
+  });
 };
+
+// ── 浮动粒子（随机量只抽一次） ──
+/* 模板里绝不能写 Math.random()：hero 的 mousemove 每帧都在改 mx/my（绑在 .hero-inner 的
+   内联样式上），一次 mousemove 就是一次整组件重渲染 —— 模板里的随机表达式会跟着重算，
+   12 颗粒子的位置（--x 改 left）、时长（--d 改动画）、尺寸、透明度当场跳变。
+   同一文件里 floatingShapes / codeRows / randCode 都在 setup 里只算一次，这里对齐。 */
+const particles = Array.from({ length: 12 }, (_, i) => ({
+  id: i,
+  x: `${Math.random() * 100}%`,
+  d: `${8 + Math.random() * 16}s`,
+  s: `${2 + Math.random() * 4}px`,
+  o: `${0.08 + Math.random() * 0.18}`,
+}));
 
 // ── 浮动形状（带排斥） ──
 const floatingShapes = ref([]);
@@ -304,18 +318,13 @@ const { newsList, loading, error } = useNews();
     <!-- 底部白渐变遮罩 -->
     <div class="hero-fade-bottom"></div>
 
-    <!-- 浮动粒子 -->
+    <!-- 浮动粒子（数值来自 setup 的 particles：写在模板里会被每次重渲染重抽） -->
     <div class="hero-particles" aria-hidden="true">
       <span
-        v-for="n in 12"
-        :key="n"
+        v-for="p in particles"
+        :key="p.id"
         class="particle"
-        :style="{
-          '--x': `${Math.random() * 100}%`,
-          '--d': `${8 + Math.random() * 16}s`,
-          '--s': `${2 + Math.random() * 4}px`,
-          '--o': `${0.08 + Math.random() * 0.18}`,
-        }"
+        :style="{ '--x': p.x, '--d': p.d, '--s': p.s, '--o': p.o }"
       ></span>
     </div>
 
@@ -335,9 +344,7 @@ const { newsList, loading, error } = useNews();
             ref="heroBtn"
             href="#about"
             class="btn btn-secondary hero-btn-magnet"
-            :style="{
-              transform: `translate(${btnMagnetX}px, ${btnMagnetY}px)`,
-            }"
+            :style="{ '--magnet-x': `${btnMagnetX}px`, '--magnet-y': `${btnMagnetY}px` }"
             >了解更多</a
           >
         </div>
@@ -667,8 +674,12 @@ const { newsList, loading, error } = useNews();
   display: none;
 }
 
-/* ── 磁吸按钮 ── */
+/* ── 磁吸按钮 ──
+   位移走 CSS 变量、不写内联 transform：内联 transform 会顶掉 `:hover` 里那条位移
+   （`.hero .btn-secondary:hover` 要让按钮抬起 2px），磁吸一动悬停效果就永远不生效。
+   变量只给数值，位移由下面这条与 hover 各自组合。 */
 .hero-btn-magnet {
+  transform: translate(var(--magnet-x, 0px), var(--magnet-y, 0px));
   transition: transform 0.15s ease-out;
 }
 
@@ -840,7 +851,8 @@ const { newsList, loading, error } = useNews();
   background: var(--primary);
   border-color: var(--primary);
   color: #fff;
-  transform: translateY(-2px);
+  /* 与磁吸位移叠加（磁吸已改成 CSS 变量，否则这行被内联 transform 顶掉、永远不生效） */
+  transform: translate(var(--magnet-x, 0px), calc(var(--magnet-y, 0px) - 2px));
   box-shadow: 0 6px 24px rgba(26, 115, 232, 0.25);
 }
 
@@ -1005,15 +1017,8 @@ const { newsList, loading, error } = useNews();
   flex-direction: column;
   align-items: flex-end;
 }
-.about-visual-title {
-  font-size: var(--font-size-xs);
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  color: var(--text-muted);
-  margin-bottom: var(--space-xl);
-  font-weight: 600;
-  align-self: flex-end;
-}
+/* 删于 2026-09-24：`.about-visual-title` 与下面 992px 档里的那条，全站只有定义、没有这个元素
+   （`.about-visual` 的直接子元素只有 `.contest-grid`）。 */
 .contest-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1484,15 +1489,9 @@ const { newsList, loading, error } = useNews();
   .float-shapes {
     display: none;
   }
-  .hero-fade-bottom {
-    display: none;
-  }
   .about-visual {
     order: 2;
     align-items: center;
-  }
-  .about-visual-title {
-    align-self: center;
   }
   .contest-grid {
     max-width: 480px;
@@ -1555,8 +1554,9 @@ const { newsList, loading, error } = useNews();
     order: 2;
     margin-top: -8px;
   }
-  .hero-particles,
-  .code-trail-container {
+  /* 代码拖尾的容器由 useCodeTrail.js 建在 <body> 下，不带本页的 data-v 属性 ——
+     隐藏规则已搬到 src/styles/base.css，写在这里永远不会命中。 */
+  .hero-particles {
     display: none;
   }
   .floating-code {

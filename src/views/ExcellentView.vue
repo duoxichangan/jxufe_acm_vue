@@ -54,18 +54,33 @@ const cleanedMembers = computed(() =>
     权重表、口径与排序键见 utils/honorRanking.js；数据加载与上面的胶囊共用同一份缓存。
     ⚠ 3 秒超时只是「先按原顺序渲染」，**不是**放弃排名 —— 迟到的那份仍然会覆盖上去
     （策略、超时值与理由见 honorRanking.js 的 rankWithTimeout）。
-    2026-09-24 修：原先是 `byName.value = result ? result.byName : new Map()`，超时先到时置成
-    空 Map、又被下面那句 `byName.value` 挡住重跑 → 3 秒后才回来的排名被**永久丢弃**。 */
+
+    「排名到手没有」和「网格可以渲染了」是两件事，**分开记**，别用一个 byName 兼职：
+    · `byName`  = 真排名；没到手就是 null，此时列表按 JSON 原序
+    · `settled` = 网格可以渲染了；真排名到手、或 3 秒超时降级，都算
+    2026-09-24 两修：① 原先是 `byName.value = result ? result.byName : new Map()`，超时先到时
+    置空 Map、又被 `byName.value` 挡住重跑 → 迟到的排名被永久丢弃；② 改成 `onApply(null)` 之后，
+    模板用 `!byName` 当骨架屏条件，把「先按原序渲染」这条降级又原样抵消（等于天天卡骨架屏）。
+    下面没有 `byName.value` 早退守卫 —— 奖学金后到会让 cleanedMembers 换一份、分值跟着变，
+    不能因为「已经排过一次」就跳过重算；乱序返回由 rankSeq 挡。 */
 const byName = ref(null)
+const rankingSettled = ref(false)
+let rankSeq = 0
 watch(
   cleanedMembers,
   async (val) => {
-    if (!val?.length || byName.value) return
+    if (!val?.length) return
+    const seq = ++rankSeq
     await rankWithTimeout(val, {
       onApply: (map) => {
-        byName.value = map
+        if (seq === rankSeq) byName.value = map
+      },
+      onTimeout: () => {
+        if (seq === rankSeq) rankingSettled.value = true
       },
     })
+    // 及时路径：onTimeout 不会触发，这里补上「可以渲染了」
+    if (seq === rankSeq) rankingSettled.value = true
   },
   { immediate: true }
 )
@@ -111,8 +126,10 @@ const { containerRef } = useMasonry()
         <HonorViewSwitch />
       </div>
 
-      <!-- Loading（成员数据与排名都就绪再渲染网格，避免卡片先排好又跳位） -->
-      <div v-if="genLoading || baseLoading || (members.length && !byName)" class="grid">
+      <!-- Loading（成员数据与排名都有结论再渲染网格，避免卡片先排好又跳位）。
+           「结论」包含 3 秒超时降级：那时按 JSON 原序先渲染，真排名回来再重排 ——
+           条件必须看 rankingSettled 而不是 byName，否则超时那条路会一直卡在骨架屏上。 -->
+      <div v-if="genLoading || baseLoading || (members.length && !rankingSettled)" class="grid">
         <div v-for="n in skeletons" :key="n" class="skeleton" style="height:420px;border-radius:var(--radius-xl);"></div>
       </div>
 

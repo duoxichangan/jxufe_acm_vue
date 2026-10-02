@@ -12,13 +12,33 @@
  */
 export const EVENTS_DIR = '/data/events'
 
-export const fetchJson = (url, fallback) =>
-  fetch(url)
-    .then((r) => (r.ok ? r.json() : fallback))
-    .catch((e) => {
-      console.error(`加载 ${url} 失败:`, e)
-      return fallback
-    })
+/** 取数失败留下的清单（url），与 honorPills 的 missingHonorSources 同口径：
+    「降级可以，但必须留下信号」—— 原先 404 会被静默换成空数据，页面上就表现为
+    「那一年没有大事记」，控制台一片安静，排查时没有任何线索。 */
+export const missingEventSources = []
+
+/** 抛错版取数：非 2xx 也要 throw（JSON 解析失败、网络错误本来就会 throw）。 */
+const fetchJsonStrict = async (url) => {
+  const res = await fetch(url)
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json()
+}
+
+/** 取数 + 失败留痕：失败返回 fallback，并把这次失败记进 missingEventSources（同一 url 只报一次）。 */
+const fetchJson = async (url, fallback, label) => {
+  try {
+    return await fetchJsonStrict(url)
+  } catch (e) {
+    if (!missingEventSources.includes(url)) {
+      missingEventSources.push(url)
+      console.warn(
+        `[eventsSource] 读不到 ${label || url}（${e.message}）—— 这部分内容会缺席，` +
+          "请检查 public/data/events/ 与部署时的上传清单"
+      )
+    }
+    return fallback
+  }
+}
 
 /** 每年探测的批量大小（并发发起，一次往返） */
 const PROBE_BATCH = 24
@@ -93,15 +113,22 @@ export function discoverYears() {
 
 /** 置顶卡片，进程内缓存 */
 export async function loadTop() {
-  if (!cache.top) cache.top = await fetchJson(`${EVENTS_DIR}/top.json`, [])
-  return cache.top
+  if (!cache.top) {
+    const data = await fetchJson(`${EVENTS_DIR}/top.json`, null, 'top.json')
+    // 失败不写缓存：否则一次瞬时失败会把「没有置顶」钉死整个会话，下次进页面也不重试
+    if (data) cache.top = data
+  }
+  return cache.top || []
 }
 
 /** 某一年的全部数据 { cards, articles }，进程内缓存 */
 export async function loadYear(year) {
   const y = String(year)
   if (cache.yearData.has(y)) return cache.yearData.get(y)
-  const data = await fetchJson(`${EVENTS_DIR}/${y}.json`, { cards: [], articles: {} })
+  const data = await fetchJson(`${EVENTS_DIR}/${y}.json`, null, `${y}.json`)
+  /* 失败：返回空数据让调用方照常渲染，但**不写缓存** —— 用户再点一次这一格会重新请求。
+     原先失败的空数据会被写进 cache.yearData，把「这一年没有大事记」钉死整个会话。 */
+  if (!data) return { cards: [], articles: {} }
   const norm = { cards: data.cards || [], articles: data.articles || {} }
   cache.yearData.set(y, norm)
   return norm

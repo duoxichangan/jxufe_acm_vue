@@ -59,7 +59,11 @@ const cards = computed(() => {
           class="card"
           :class="{ 'card--xcpc': c.isXcpc }"
         >
-          <!-- xCPC 合并大卡：ICPC / CCPC 两张子卡并排（1×2），各自内容布局不变 -->
+          <!-- xCPC 合并大卡：ICPC / CCPC 两张子卡并排（1×2），各自内容布局不变。
+               ⚠ 下面两支标记树必须同步改：xCPC 那支多一层 .xcpc-sub 包裹（并排的 flex 容器、
+                 是 .card 的 flex item），普通卡则是 .card 的直系子元素 —— 合成一个 v-for
+                 会多出一个 box（.xcpc-sub 的 flex: 1 1 50% 在 column 容器里语义不同），
+                 要塌成一个循环就得连带改 .card 的布局，故有意保留两份。 -->
           <template v-if="c.isXcpc">
             <div v-for="child in c.children" :key="child.slug" class="xcpc-sub">
               <div class="card-image-wrap">

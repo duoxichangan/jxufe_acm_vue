@@ -15,6 +15,11 @@ const {
 /* 6 位负责人 —— 原先写 5，骨架屏条数与实际列表不等 */
 const { skeletons } = useSkeleton(6);
 
+/** 头像兜底：与优秀成员页同款（那页是 `m.photo || fallback` + @error）。
+    两页字段名不同（members 用 photo、leaders 用 avatar），但「路径写错/忘了放图」的
+    容错必须一致 —— 换届加一位负责人只补 leaders.json 是最容易漏图的一步。 */
+const AVATAR_FALLBACK = "/images/excellent_member/default.png";
+
 /** 荣誉显示的三份公共数据与归一化 —— 与优秀成员页共用同一套取数
     （composables/useHonorDisplay.js），渲染在 <HonorTags>。
     dutyOf 与优秀成员页同源：**职务胶囊在这两页都要传**（2026-09-24 修）—— 原先只有
@@ -102,6 +107,10 @@ const list = computed(() =>
       <!-- Error -->
       <p v-else-if="error" class="hint">加载失败</p>
 
+      <!-- 空名单：请求成功但一条都没有 —— 与「加载失败」分开说，
+           否则页面是一片空白，看不出是没数据还是没加载（其他页也各有各的判据，见审查记录） -->
+      <p v-else-if="!list.length" class="hint">暂无负责人信息</p>
+
       <!-- 负责人列表 -->
       <div v-else class="leader-grid">
         <article
@@ -117,14 +126,20 @@ const list = computed(() =>
           <!-- 头像区 -->
           <div class="leader-avatar-wrap">
             <div class="avatar-ring"></div>
-            <img :src="l.avatar" :alt="shownName(l)" class="leader-avatar" />
+            <img
+              :src="l.avatar || AVATAR_FALLBACK"
+              :alt="shownName(l)"
+              class="leader-avatar"
+              @error="$event.target.src = AVATAR_FALLBACK"
+            />
           </div>
 
           <!-- 信息区 -->
           <div class="leader-body">
             <h2 class="leader-name">{{ shownName(l) }}</h2>
             <p class="leader-class">{{ l.class }}</p>
-            <p class="leader-message">{{ l.message }}</p>
+            <!-- title 是零成本的「看全文」：这条寄语在 ≥993px 有 line-clamp: 3（窄屏反而放开） -->
+            <p class="leader-message" :title="l.message">{{ l.message }}</p>
 
             <!-- 成就标签：比赛战绩（三种显示模式，会长 2026-09-23）在前，手写荣誉在后；
                  均按类型分色。顺序与模式都在 <HonorTags> 里 —— 与优秀成员页共用。 -->

@@ -75,6 +75,8 @@
  */
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { FAMILY_LABELS, FAMILY_ORDER } from '../utils/contestTaxonomy.js'
+import { honorText } from '../utils/honorType.js'
+import { BODY_WALL_SHEET } from '../utils/domMarkers.js'
 
 const props = defineProps({
   /** 由父组件 v-model:active 控制（HomeView 里就是那个按钮的开关） */
@@ -138,9 +140,13 @@ const openShortTags = computed(() => (openItem.value?.sheetTags || []).filter((t
 const openDetailTags = computed(() => (openItem.value?.sheetTags || []).filter((t) => t.type === 'contest'))
 
 /** 战绩明细按赛事系列分组，组顺序 = contestTaxonomy 的 FAMILY_ORDER（与胶囊同序）。
-    family 是生成器从 awards 文件名映射出来的数据；没有 family 的是**手写的其它竞赛**
-    （传智杯 / 睿抗 / 数模 / CSP…，全库 558 条明细里 21 条），归到最后一组「其他赛事」——
-    留空标题会让它们看起来像上面那一组的续表。 */
+    family 是生成器从 awards 文件名映射出来的数据；手写在 members.json / leaders.json 里的
+    条目没有 family（实测 141 格里 17 人 / 21 条），归到最后一组。
+    ⚠ 这一组里绝大多数是「胶囊表达不了的其它竞赛」（睿抗 / 传智杯 / 数模 / CSP…），但**不是全部**：
+    王海峰的「2024 ICPC 江西省赛季军」与邓一帆的「第十五届蓝桥杯国家级优秀奖」其实是主线赛事，
+    只是手写条目同样没有 family —— 所以组名不能用「其他赛事」这种断言（会写错归类）。
+    根治要在数据侧给这两条补 family（members/leaders 的 honors 目前是纯字符串，属会长口径）；
+    组件里不去猜文案里的赛事名（「暨江西省赛」这类标题同时含两个段名，正则拦不住）。 */
 const openDetailGroups = computed(() => {
   const byFamily = new Map()
   for (const t of openDetailTags.value) {
@@ -155,7 +161,7 @@ const openDetailGroups = computed(() => {
     byFamily.delete(f)
   }
   for (const [key, items] of byFamily) {
-    groups.push({ key: key || 'other', label: key ? key : '其他赛事', items })
+    groups.push({ key: key || 'other', label: key ? FAMILY_LABELS[key] : '其他战绩', items })
   }
   return groups
 })
@@ -196,13 +202,14 @@ const measure = () => {
 /**
  * 悬停卡最多铺几条标签，其余折成一枚「+N」。
  * 不设上限时，标签是一条条往下的柱子（实测最多 9 条，韩家欢 5 条就已经看不出主次）；
- * 全站 141 人里 100 人 ≤3 条 —— 这个上限对大多数人不产生「+N」，真正收拾的是
- * 那 26 位 6 条以上的。明细在浮窗里，点一下就有。
+ * 全站 141 人里 100 人 ≤3 条 —— 这个上限对大多数人不产生「+N」，真正收拾的是标签多的那批
+ * （实测 2026-09-24：≥6 条 14 人、≥5 条 26 人、最多 9 条）。明细在浮窗里，点一下就有。
  *
  * ⚠ 2026-09-24 起「身份」与「战绩」**分开计数**（会长：tag 与奖项要能区分）：
  *   两者本来混在同一排里，会长身份的金色胶囊紧挨着蓝桥杯的蓝色胶囊，读起来是一堆
  *   没有主次的色块。现在身份那排归身份、战绩那排归战绩，各自折各自的 +N。
- *   战绩每系列一枚、全墙最多 4 枚，给 2 枚就够看出「这人打过什么比赛」。
+ *   战绩里四个「自动汇总」系列各一枚，另有手写竞赛条目会再加（实测单卡 contest 标签最多 6 枚），
+ *   给 2 枚就够看出「这人打过什么比赛」。
  */
 const PREVIEW_IDENTITY = 3
 const PREVIEW_CONTEST = 2
@@ -215,6 +222,15 @@ const PREVIEW_CONTEST = 2
  *     family 只有浮窗的战绩明细有（gen_group_wall.mjs 的 sheetTagsOf 从 awards 的文件名映射），
  *     浮窗正文靠它按赛事系列分组。
  * 统一成 { text, type, family }，type 为空字符串时按纯字符串渲染。
+ * 取值那一步（字符串 / { text }，也认 { label } / { name }）收口到 honorType.js 的 honorText()，
+ * 这里不再自己写第二遍 —— 同一份 JSON 在墙上与在两个页面必须认得出同一批字段。
+ *
+ * ⚠ 有意**不**调用 honorType.js 的 normalizeHonors()（它就是干这件事的）：那个函数会按关键词
+ * **推断** type（认不出的兜底成 contest），而本组件对「没有 type」的默认观感是中性色。
+ * 实测两种实现在生成物上逐条相同（group_wall.json 939 条标签 0 差异 —— 因为
+ * gen_group_wall.mjs 写标签时已经过 normalizeHonors），但在上游那份纯字符串数据
+ * （hero_wall.json 92 条）上会整片变成推断出来的类型色、并给「ICPC」补上空格 ——
+ * 那是渲染口径的改动，不该顺手做。真要统一就整卡一起改，别只换这一处。
  */
 const normalizeTags = (list) => {
   if (!Array.isArray(list)) return []
@@ -223,7 +239,7 @@ const normalizeTags = (list) => {
       typeof t === 'string'
         ? { text: t, type: '', family: '' }
         : {
-            text: String(t?.text ?? ''),
+            text: honorText(t),
             type: String(t?.type ?? ''),
             family: String(t?.family ?? ''),
           }
@@ -996,7 +1012,7 @@ const lockPage = (on) => {
   if (typeof document === 'undefined') return
   document.documentElement.style.overflow = on ? 'hidden' : ''
   document.body.style.overflow = on ? 'hidden' : ''
-  document.body.classList.toggle('hero-wall-sheet', on)
+  document.body.classList.toggle(BODY_WALL_SHEET, on)
 }
 
 watch(openItem, (v) => {
@@ -1175,7 +1191,7 @@ watch(() => props.hoverCard, () => {
              那句话不提供任何信息，只是噪音。
              ⚠ v-if 挂在这一层（而不是里面的 <p>）也是刻意的：这一块带 padding，
                空着留在这儿会在「奖项」和底部提示之间拉出一条几十像素的空白带。 -->
-        <div v-if="openItem.message || openDetailTags.length" class="wall-sheet__body">
+        <div v-if="openItem.message || openDetailGroups.length" class="wall-sheet__body">
           <!-- 正文分「节」：寄语一节、荣誉明细一节，两节之间一条分隔线 + 一个小节标题。
                没有这层结构时，一小段灰字留言和几十枚彩色胶囊直接挨在一起，
                留言会被胶囊的色块淹掉（会长 2026-09-24：寄语「和别的没有层次区分」）。 -->
@@ -1617,7 +1633,8 @@ watch(() => props.hoverCard, () => {
      保留 line-height: 1 让首行跟着长高。字号从 2.2em 收到 1.6em（会长 2026-09-24：
      寄语「很丑」）—— 2.2em 在 13px 正文上是 28.6px 的蓝块，比句子本身还抢眼；
      1.6em 在现在的 14px / 1.75 正文上是 22.4px，落在 24.5px 的行盒里，既不被裁、
-     也不再喧宾夺主。 */
+     也不再喧宾夺主。浮窗正文是 17px / 1.85（.wall-sheet__msg）⇒ 27.2px，落在 31.45px 的
+     行盒里同样不裁、也不撑破（2026-09-24 复核：这条规则悬停卡与浮窗共用，两处都算过）。 */
 .wall__quote,
 .wall-sheet__quote {
   font-family: Georgia, 'Times New Roman', 'Songti SC', 'SimSun', serif;
@@ -1697,8 +1714,13 @@ watch(() => props.hoverCard, () => {
      卡片变矮之后它自己就滚起来（实测正文可视 638 / 内容 803）。
      ⚠ 导航栏实际占位是 **80 + 1**：AppHeader 的 header 恒定带一条 1px 底边框
      （颜色透明而已），所以量到的是 81。少算这 1px，抽屉贴底那一档就会差 1px 压线。 */
-  --sheet-top: calc(var(--header-height, 80px) + 1px);
-  padding: calc(var(--sheet-top) + 20px) 20px 20px;
+  --sheet-top: calc(var(--header-height) + 1px);
+  /* 一处留白 = --sheet-gap：padding 与卡片 max-height 必须成对（卡片是垂直居中的，
+     只改一半就会让展开卡片顶部重新顶回导航栏底下，而 CSS 不会报错、不报错就看不出）。
+     下面 .wall-sheet__card 的 `- 2 * var(--sheet-gap)` 就是这份 padding 的对应项，
+     矮屏那档只覆写 --sheet-gap 一个数。 */
+  --sheet-gap: 20px;
+  padding: calc(var(--sheet-top) + var(--sheet-gap)) var(--sheet-gap) var(--sheet-gap);
   background: rgba(15, 23, 42, 0.34);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
@@ -1715,11 +1737,11 @@ watch(() => props.hoverCard, () => {
   width: min(560px, 100%);
   /* ⚠ 上限写两行：认识 dvh 的浏览器用 dvh（手机地址栏收放时跟得上），
      不认识的忽略第二行、落到 vh。顺序不能反。
-     上限还要再减去导航栏那 80px —— 与上面 .wall-sheet 的 padding-top 是同一个账：
-     容器内容区 = 视口 −(导航栏 + 20)−20，卡片的 max-height 必须 ≤ 它，否则居中之后
-     顶部又会顶回导航栏底下。 */
-  max-height: calc(100vh - var(--sheet-top) - 40px);
-  max-height: calc(100dvh - var(--sheet-top) - 40px);
+     上限还要再减去上下两份 --sheet-gap —— 与上面 .wall-sheet 的 padding 是同一个账：
+     容器内容区 = 视口 −(导航栏 + gap)−gap，卡片的 max-height 必须 ≤ 它，否则居中之后
+     顶部又会顶回导航栏底下。`2 * var(--sheet-gap)` 让这对数只能一起改。 */
+  max-height: calc(100vh - var(--sheet-top) - 2 * var(--sheet-gap));
+  max-height: calc(100dvh - var(--sheet-top) - 2 * var(--sheet-gap));
   background: #fff;
   border-radius: 18px;
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
@@ -1930,6 +1952,8 @@ watch(() => props.hoverCard, () => {
        会长 2026-09-24：「内容多时和顶部贴在一起了，留点空隙」→ 先让 16px，
        再要求「上侧留白再大点」→ 24px（约等于抽屉圆角 20px 的呼吸量）。
        内容多时由正文自己滚，不再往上顶。 */
+    /* 贴底抽屉没有下/侧 padding（上面 .wall-sheet 的 padding: 0），这 24px 只是**顶部**空隙，
+       所以是 -24 而不是 -2 * var(--sheet-gap)：改 --sheet-gap 不影响这一档，有意如此。 */
     max-height: calc(100vh - var(--sheet-top) - 24px);
     max-height: calc(100dvh - var(--sheet-top) - 24px);
     border-radius: 20px 20px 0 0;
@@ -1957,13 +1981,12 @@ watch(() => props.hoverCard, () => {
   .wall-sheet {
     /* 矮屏把留白压到 10px，但**导航栏那 80px（+1px 边框）不能省**：这一档最容易出
        「上部被遮挡」（520px 高的窗口里导航栏占 15%）。让出来的空间从正文里扣，
-       头上那条线照旧看得见。 */
-    padding: calc(var(--sheet-top) + 10px) 10px 10px;
+       头上那条线照旧看得见。
+       只改这一个数就够：padding 与卡片 max-height 都由基档的公式按 --sheet-gap 算。 */
+    --sheet-gap: 10px;
   }
   .wall-sheet__card {
     width: min(640px, 100%);
-    max-height: calc(100vh - var(--sheet-top) - 20px);
-    max-height: calc(100dvh - var(--sheet-top) - 20px);
     border-radius: 14px;
   }
   .wall-sheet__head {
@@ -2092,7 +2115,9 @@ watch(() => props.hoverCard, () => {
    好消息是这一档 hero 的上内边距是 header + 120px，顶上有一大片空白 —— 挪上去正好。 */
 @media (min-width: 769px) and (max-width: 991px) {
   .wall-toggle {
-    top: calc(var(--header-height, 80px) + 24px);
+    /* 高度只认令牌（与 AppHeader 的 height / --sheet-top 同一份）：兜底的 80px 是第三份
+     字面量，令牌改名时它会静默顶上、当天看不出差别。 */
+  top: calc(var(--header-height) + 24px);
     bottom: auto;
   }
 }

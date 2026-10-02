@@ -35,7 +35,6 @@
   color: #fff;
   box-shadow: 0 2px 8px rgba(26, 115, 232, 0.25);
 }
-/* 视图显隐：表格/卡片二选一展示 */
-.view-hidden {
-  display: none !important;
-}
+/* 视图显隐（.view-hidden）2026-09-24 已删：唯一的使用者 CompetitionDetailView.vue 把
+   参赛历史的表格 / 卡片两棵树改成 v-if / v-else 按需挂载了 —— 原先两棵树同时挂在 DOM 上、
+   另一棵靠 display:none 藏着，既白占节点，也让「现在显示的是哪棵」有两处真相。 */
