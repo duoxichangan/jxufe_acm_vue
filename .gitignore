@@ -24,4 +24,8 @@ public/data/event_badges.json
 # 注意它与 hero_wall.json 不是一回事：后者是**会长手写的留言源**，gen_group_wall.mjs
 # 会读它（按姓名并入成员墙），必须继续入库。
 public/data/hero_wall.manifest.json
+# 同上：近期赛事时间表的**自动层**，prebuild 的 scripts/gen_schedule.mjs 抓各赛事官网生成
+# （内容随官网变，入库只有噪声；抓不到时页面自动降级成只显示手写层）。
+# ⚠ 与它成对的手写真源 public/data/schedule.json 必须入库 —— 那是会长的判断，要能 review。
+public/data/schedule.auto.json
 *.log

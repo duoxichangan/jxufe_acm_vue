@@ -47,6 +47,11 @@ import path from 'node:path'
 // 荣誉类型（contest / destination / honor / contact / more / leader）只有一处真源：
 // src/utils/honorType.js —— 校验 wall_rules.json 的 honors[].type 时按它判定，别再抄一份。
 import { HONOR_TYPE_LABELS } from '../src/utils/honorType.js'
+// 日期合法性只有一处判据：src/utils/scheduleView.js 的 parseDate（竞赛信息页也用它），别再抄一份
+import { parseDate } from '../src/utils/scheduleView.js'
+// xCPC 标题的标准形式白名单与命名函数同住一处（scripts/lib/schedule-parse.mjs）：
+// 生成器用它造名字、这里用它验名字，两边永远看同一份正则
+import { isStandardXcpcTitle } from './lib/schedule-parse.mjs'
 
 const ROOT = path.resolve(import.meta.dirname, '..')
 const DATA = path.join(ROOT, 'public', 'data')
@@ -503,6 +508,109 @@ if (sch) {
   console.log(`  ${bad.length ? 'ERR' : 'OK '}  scholarships.json        ${rows.length} 人 / ${rows.reduce((s, [, l]) => s + l.length, 0)} 条（type 恒为 honor）`)
 }
 
+/* 近期赛事时间表的手写真源（2026-10-01 新增）。页面会把它与构建期抓来的
+   schedule.auto.json 合并、**手写优先** —— 所以两份的日期写法必须一致，这里钉住格式。 */
+const sched = needJSON('schedule.json')
+if (sched) {
+  const sp = []
+  /** 命名类问题只提示、不算失败（见下面那条注释） */
+  const nameWarns = []
+  // 赛事 slug 除了 competitions.json 里那六个，还允许线上平台与协会自办：
+  // 页面按 slug 取图标 / 配色，写错不会报错、只会静悄悄没图标，所以在这里拦下拼写错。
+  // ⚠ raicom **有意不在**白名单里（会长 2026-10-02：「去除睿抗的 filter，并且最近赛时里也不
+  //   显示睿抗的比赛」）：睿抗场次已被 scheduleView 的 HIDDEN_CONTESTS 整条滤掉，
+  //   再手写一条只会「写了却永远不显示」—— 故让它在这里就报错，而不是静默吞掉。
+  const KNOWN = new Set([
+    ...(comps || []).map((c) => c.slug),
+    'codeforces',
+    'atcoder',
+    'luogu',
+    'nowcoder',
+    'club',
+  ])
+  const seen = new Set()
+  const badDay = (v) => (parseDate(v) ? '' : `「${v}」不是合法日历日（要 YYYY-MM-DD）`)
+  for (const [i, it] of (sched.items || []).entries()) {
+    const where = `items[${i}]${it?.title ? `「${it.title}」` : ''}`
+    if (!it?.contest) sp.push(`${where} 缺 contest`)
+    else if (!KNOWN.has(it.contest)) sp.push(`${where} 的 contest「${it.contest}」不在已知赛事里（可用：${[...KNOWN].join(' / ')}）`)
+    if (!it?.title) sp.push(`${where} 缺 title`)
+    // xCPC 的标题要写成标准形式（会长 2026-10-02；11 种写法见 scripts/lib/schedule-parse.mjs）。
+    // **warn 不 err**：官网通告偶尔给不出干净的站名，硬拦会逼着维护者把名字改坏来讨好校验 ——
+    // 但也不该静默放过，那会让表里同时出现「CCPC 长春国赛」和「CCPC全国赛（长春）」。
+    if ((it?.contest === 'icpc' || it?.contest === 'ccpc') && it?.title && !isStandardXcpcTitle(it.title)) {
+      nameWarns.push(`${where} 的标题不是 xCPC 标准写法（允许的写法见 scripts/lib/schedule-parse.mjs 的 XCPC_TITLE_RES）`)
+    }
+    if (!it?.start) sp.push(`${where} 缺 start（start 是唯一必填；没确定日期的场次请写进 pending）`)
+    for (const k of ['start', 'end', 'deadline']) {
+      if (it?.[k] == null) continue
+      const bad = badDay(it[k])
+      if (bad) sp.push(`${where} 的 ${k}：${bad}`)
+    }
+    if (parseDate(it?.start) && parseDate(it?.end) && parseDate(it.start) > parseDate(it.end))
+      sp.push(`${where} 的 end(${it.end}) 早于 start(${it.start})`)
+    if (parseDate(it?.deadline) && parseDate(it?.start) && parseDate(it.deadline) > parseDate(it.start))
+      sp.push(`${where} 的 deadline(${it.deadline}) 晚于开赛日(${it.start}) —— 报名截止不该在比赛之后`)
+    const key = `${it?.contest}|${it?.start}`
+    if (it?.start && seen.has(key)) sp.push(`${where} 与前面某条同为「${key}」—— 页面按「同赛事同日」去重，只会显示一条`)
+    seen.add(key)
+  }
+  for (const [i, p] of (sched.pending || []).entries()) {
+    const where = `pending[${i}]${p?.title ? `「${p.title}」` : ''}`
+    if (!p?.title) sp.push(`${where} 缺 title`)
+    if (!p?.when) sp.push(`${where} 缺 when（形如「2026 年 10 月，日期待定」）`)
+  }
+  if (!sched.updated) sp.push('缺 updated（最后改动日期，页面右上角「数据更新」会显示它）')
+  else if (!parseDate(sched.updated)) sp.push(`updated 的 ${badDay(sched.updated)}`)
+  srcProblems.push(...sp)
+
+  const next = (sched.items || []).filter((i) => i?.start).sort((a, b) => (a.start < b.start ? -1 : 1))[0]
+  console.log(
+    `  ${sp.length ? 'ERR' : 'OK '}  schedule.json            ${(sched.items || []).length} 场 + ${(sched.pending || []).length} 条时间待定` +
+      (next ? `（最近一场 ${next.start}「${next.title}」）` : '')
+  )
+  nameWarns.forEach((w) => console.log(`         ℹ ${w}`))
+}
+
+/* 线上平台（Codeforces / AtCoder / 牛客）的图标与简称（2026-10-02 新增，随牛客源一起进来）。
+   这一份**故意不进 competitions.json**：那份数据的每一条都会在竞赛卡片网格里长出一张大卡，
+   还要过奖项文件与届次映射，而这些平台本站并不「参赛」，只是赛程的来源。
+   页面取不到图标**不会报错**，只会静默画一枚首字母方块 —— 正是「写错一个字看不出来」那类错，
+   故在此核对结构、图标文件是否真的存在、以及 slug 有没有被赛程数据真正用到。
+   （自动层自己读一遍：本块在 srcProblems 汇总之前、而 optJSON/schedAuto 在本块之后才声明。） */
+{
+  const platFile = path.join(DATA, 'platforms.json')
+  const plat = fs.existsSync(platFile) ? readJSON(platFile) : null
+  const pp = []
+  if (!plat) {
+    pp.push('platforms.json 不在场（线上赛的行首 logo 会退化成首字母方块）')
+  } else if (!Array.isArray(plat.items)) {
+    pp.push('items 不是数组')
+  } else {
+    const autoFile = path.join(DATA, 'schedule.auto.json')
+    const autoItems = fs.existsSync(autoFile) ? readJSON(autoFile).items || [] : []
+    const used = new Set([...(sched?.items || []), ...autoItems].map((i) => i?.contest).filter(Boolean))
+    const seen = new Set()
+    for (const [i, it] of plat.items.entries()) {
+      const where = `platforms.items[${i}]${it?.slug ? `「${it.slug}」` : ''}`
+      if (!it?.slug) pp.push(`${where} 缺 slug`)
+      else {
+        if (seen.has(it.slug)) pp.push(`${where} slug 重复`)
+        seen.add(it.slug)
+        if (!used.has(it.slug)) pp.push(`${where} 没有被任何赛程行用到（抓取层是不是改了 slug？）`)
+      }
+      if (!it?.name || !it?.shortName) pp.push(`${where} 缺 name / shortName（行内 alt 文本要用）`)
+      if (!it?.image) pp.push(`${where} 缺 image`)
+      else if (!it.image.startsWith('/images/')) pp.push(`${where} 的 image 要以 /images/ 开头（public 下按绝对路径取）`)
+      else if (!fs.existsSync(path.join(ROOT, 'public', it.image))) pp.push(`${where} 的图 ${it.image} 不存在`)
+    }
+  }
+  srcProblems.push(...pp)
+  console.log(
+    `  ${pp.length ? 'ERR' : 'OK '}  platforms.json           ${plat?.items?.length ?? 0} 个平台（图标文件、slug 均核对）`
+  )
+}
+
 srcProblems.slice(0, 8).forEach((p) => console.log('         ' + p))
 if (srcProblems.length) failed += srcProblems.length
 
@@ -564,6 +672,37 @@ if (badges) {
   console.log(`  ${badTier.length || mismatch ? 'ERR' : 'OK '}  event_badges.json        ${bkB.length} 枚角标 / tiers 同键 ${bkTiers.length}`)
 } else {
   console.log('  --   event_badges.json       不在场（跑 npm run data:event-badges 生成）')
+}
+
+/* 自动层（构建期由 scripts/gen_schedule.mjs 抓各赛事官网）：不在场只提示，
+   在场就把**源健康**摆出来 —— 抓取失败在构建日志里只是一行 warn，跑 data:check 时才看得见谁挂了。 */
+const schedAuto = optJSON('schedule.auto.json')
+if (schedAuto) {
+  const srcs = schedAuto.sources || []
+  const dead = srcs.filter((s) => !s.ok)
+  const badDates = (schedAuto.items || []).filter((i) => !parseDate(i?.start))
+  if (badDates.length) derProblems.push(`schedule.auto.json 有 ${badDates.length} 条非法日期（生成器不该写出这种）`)
+  if (!schedAuto.generated_at) derProblems.push('schedule.auto.json 缺 generated_at')
+  console.log(
+    `  ${badDates.length ? 'ERR' : 'OK '}  schedule.auto.json      ${(schedAuto.items || []).length} 场自动场次 / ` +
+      `${srcs.filter((s) => s.ok).length}/${srcs.length} 个源可用` +
+      (dead.length ? `（未同步：${dead.map((s) => s.label || s.id).join('、')}）` : '')
+  )
+  for (const a of (schedAuto.alerts || []).slice(0, 5)) {
+    console.log(`         ℹ 公告待人工确认：${a.title}`)
+    if (a.url) console.log(`           ${a.url}`)
+  }
+  const genDays = Math.floor((Date.now() - Date.parse(schedAuto.generated_at || 0)) / 86400000)
+  if (Number.isFinite(genDays) && genDays >= 7)
+    console.log(`         ℹ 自动层生成于 ${genDays} 天前 —— 部署时 prebuild 会重抓，想立刻更新跑 npm run data:schedule`)
+  // 自动层的 xCPC 名字也该是标准形式（生成器负责）；不是就说明那份是无格式改造前抓的
+  for (const i of (schedAuto.items || []).filter(
+    (i) => (i?.contest === 'icpc' || i?.contest === 'ccpc') && i?.title && !isStandardXcpcTitle(i.title)
+  )) {
+    console.log(`         ℹ 自动层标题不是 xCPC 标准写法：${i.title}（跑 npm run data:schedule 重抓即可）`)
+  }
+} else {
+  console.log('  --   schedule.auto.json     不在场（跑 npm run data:schedule 抓取；页面会自动降级成只显示手写层）')
 }
 
 derProblems.slice(0, 8).forEach((p) => console.log('         ' + p))

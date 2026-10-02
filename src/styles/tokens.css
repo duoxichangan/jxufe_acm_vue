@@ -135,6 +135,29 @@
      时间轴里表示百度之星的红色是另一个（#e53935），别混用。 */
   --honor-grand: #c62828;
 
+  /* ===== 赛事类型配色（大事记与竞赛信息页「近期赛事」**共用一份**）=====
+     原先这 11 个色值只写在大事记的 `.tl-card--X` 里。2026-10-02 近期赛事表要「用左边框指示
+     比赛类型、颜色参考大事记」，若在新组件里再抄一遍，两边就会各自漂移 —— 故提到令牌层：
+     大事记的 `.tl-card--X` 与赛程表的每一行都引这里，**改一处两页同时变**。
+     键名与大事记数据的 `category` 字段一一对应（中文名见 AllActionView.vue 的 CAT_LABEL
+     与 src/utils/scheduleView.js 的 CATEGORY_LABELS，两处同名同序）。
+     ⚠ 后 3 个（final / raicom / online）是大事记里**还没有实例**、而赛程表需要的类型，
+       颜色是按同一套 Material 调色板新挑的 —— 大事记若哪天也用上，引同名令牌即可。 */
+  --cat-inv: #1e88e5;          --cat-inv-soft: rgba(30, 136, 229, 0.1);      /* 邀请赛 */
+  --cat-reg: #7c4dff;          --cat-reg-soft: rgba(124, 77, 255, 0.1);      /* 区域赛·全国赛 */
+  --cat-prov: #43a047;         --cat-prov-soft: rgba(67, 160, 71, 0.1);      /* 省赛·区赛 */
+  --cat-net: #00acc1;          --cat-net-soft: rgba(0, 172, 193, 0.1);       /* 网络赛（含网络预选赛） */
+  --cat-final: #4527a0;        --cat-final-soft: rgba(69, 39, 160, 0.1);     /* 总决赛（区域/世界/CCPC） */
+  --cat-tts: #f9a825;          --cat-tts-soft: rgba(249, 168, 37, 0.1);      /* 天梯赛 */
+  --cat-lanqiao: #3949ab;      --cat-lanqiao-soft: rgba(57, 73, 171, 0.1);   /* 蓝桥杯 */
+  --cat-chuanzhi: #ff7043;     --cat-chuanzhi-soft: rgba(255, 112, 67, 0.1); /* 传智杯 */
+  --cat-baidu: #e53935;        --cat-baidu-soft: rgba(229, 57, 53, 0.1);     /* 百度之星 */
+  --cat-raicom: #6d4c41;       --cat-raicom-soft: rgba(109, 76, 65, 0.1);    /* 睿抗 */
+  --cat-school: #d81b60;       --cat-school-soft: rgba(216, 27, 96, 0.1);    /* 校赛 */
+  --cat-club: #78909c;         --cat-club-soft: rgba(120, 144, 156, 0.1);    /* 社团活动 */
+  --cat-online: #00897b;       --cat-online-soft: rgba(0, 137, 123, 0.1);    /* 线上赛（Codeforces / AtCoder / 洛谷） */
+  --cat-other: #b0bec5;        --cat-other-soft: rgba(176, 190, 197, 0.1);   /* 其他 */
+
   /* ===== Z 轴层级 ===== */
   --z-dropdown: 100;
   --z-sticky: 200;

@@ -1,13 +1,16 @@
 <script setup>
 import { computed } from 'vue'
-import { useJson } from '../composables/useJson'
 import { useSkeleton } from '../composables/useSkeleton'
+import { useScheduleData } from '../composables/useScheduleData.js'
 import CompetitionSchedule from '../components/CompetitionSchedule.vue'
+import UpcomingBoard from '../components/UpcomingBoard.vue'
 import { mergeXcpc, XCPC_MODE } from '../utils/contestTaxonomy.js'
 
-const { data: competitions, loading, error } = useJson('/data/competitions.json', {
-  initial: []
-})
+// 竞赛卡片 / 全年赛程 / 近期赛事看板要的四份数据（口径见 composables/useScheduleData.js）：
+// 本页与「近期赛事」独立页（/upcoming）走**同一个入口**，不是各写一遍 useJson ——
+// 否则日后加一份数据就会漏改一页（本仓库为这类静默差立过好几次规矩）。
+const { competitions, schedule, autoSchedule, platforms, loading, error, scheduleLoading } =
+  useScheduleData()
 const { skeletons } = useSkeleton(8)
 
 // ICPC 与 CCPC 合并为一张 xCPC 大卡（1×2：一张卡片、两大赛事并排）。
@@ -44,10 +47,21 @@ const cards = computed(() => {
       <!-- Error -->
       <p v-else-if="error" class="hint">加载失败</p>
 
-      <!-- 全年赛程 + 竞赛卡片（同一份数据，故共用加载态）
-           会长 2026-09-23：日程放到各竞赛卡片**上方** —— 它是「什么时候比」，
-           比「有哪些比赛」更该先看到 -->
+      <!-- 页面主线的顺序（2026-10-02 改版）：先**近期赛事看板**、再**全年赛程**、最后竞赛卡片 ——
+           读的人先要知道「最近要比哪一场」，再关心「这类比赛一般几月比」。
+           ⚠ 看板只是一块卡片：**完整那张写到日子的表搬去独立页 /upcoming 了**
+           （会长 2026-10-02：「近期赛时显示为独立页面，竞赛信息页只显示一个看板，点击进入详情页」）——
+           那张表带类型筛选、会长到三四十行，留在这页会把下面两段一路压到看不见。
+           两者数据不同源：看板读 schedule.json（+ 构建期抓来的 schedule.auto.json），
+           全年赛程读 competitions.json 的 schedule 字段。 -->
       <template v-else>
+      <UpcomingBoard
+        :competitions="competitions || []"
+        :platforms="platforms?.items || []"
+        :schedule="schedule || {}"
+        :auto-schedule="autoSchedule || {}"
+        :loading="scheduleLoading"
+      />
       <CompetitionSchedule :competitions="competitions || []" />
       <div class="grid">
         <RouterLink
