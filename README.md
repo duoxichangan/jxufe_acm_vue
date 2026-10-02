@@ -134,7 +134,7 @@ jxufe-acm-vue/
     ├── data/
     │   └── navigation.js          # 导航菜单 + 页脚链接
     ├── utils/
-    │   ├── inline.js              # 内联标记解析（**加粗**、[链接](url)）
+    │   ├── inline.js              # 内联标记解析（**加粗**、[链接](url)、~~删除线~~）
     │   ├── awardGroups.js         # ★ 获奖数据展示工具（两个竞赛页共用）
     │   ├── honorPills.js          # ★ 比赛战绩胶囊：由 awards/ 自动汇总（不用手写进名单）
     │   ├── honorRanking.js        # ★ 卡片排序分与入墙阈值的分数口径（改口径只改这个文件）
@@ -343,6 +343,50 @@ events/2026.json
 - 卡片的 `title` / `date` 必须与 `articles` 里那条一致，校验脚本会强制检查
 - 只想给个直达链接、**不上时间轴**：就只写 `articles`，不写 `cards`（校验会把它记为「无卡片入口的文章」，这是允许的）
 - 加完跑 `npm run data:check` 校验。**没有索引文件需要维护**：目录里有哪些年份由前端自动探测，月份与分类计数随年份文件加载实时算出
+
+#### 多作者文章：一条大事记放多位分享人（`authors` 形态）
+
+一篇正文有两种形态，**二选一**（校验脚本按字段名与顺序强制区分）：
+
+| 形态 | 字段 | 用在 |
+|---|---|---|
+| `blocks` | `{ title, date, subtitle?, blocks }` | 普通文章（绝大多数） |
+| `authors` | `{ title, date, subtitle?, authors: [{ name, group?, meta?, final?, blocks }, …] }` | 一条大事记里放多位分享人 |
+
+`authors` 是给「保研经验分享」这类**同一条大事记、多个作者各写一篇长文**的场景用的：时间轴上仍只有一张卡片，文章页用切换器选人看（`src/components/action/AuthorSwitcher.vue`，分段控件复用 `.view-toggle`）。每位分享人的字段：
+
+| 字段 | 必填 | 说明 |
+|---|---|---|
+| `name` | ✅ | 展示名（切换器 tag 上的字）。两位及以上、且不能重名 |
+| `group` | —— | 队伍/归属。**当前不上屏**（tag 上只留名字、年级、去向），存在数据里备用 |
+| `grade` | —— | 年级（`2023级`）。显示在 tag 上名字右侧 |
+| `meta` | —— | 一句话身份（专业 · rank）。**当前不上屏**，同上 |
+| `final` | —— | 最终去向，显示在 tag 上年级右侧（`名字 · 年级 · 去向`），没有就不显示这一段 |
+| `blocks` | ✅ | 这位分享人的正文，块类型与普通文章完全一样 |
+
+- 切换器**只在 ≥2 位时渲染**（1 位就该用 `blocks` 形态，校验会报错）
+- 选中状态同步到 URL：`/post/<id>?a=1` 直接落在第 2 位分享人，刷新与分享都保持同一个人
+- `group` / `grade` / `meta` / `final` 会被直接渲染成文本（`group`/`meta` 目前只进 hover 提示），**不能含 `|` 或换行**（校验会拦，防生成器抠错行）
+
+> 现有那篇（`2026-10-2-postgraduate-share`）由 `npm run data:share` 从**仓外**的 Markdown 原文
+> 生成：转换逻辑与两个开关都在 `scripts/gen_postgraduate_share.mjs` ——
+> `SHARE` 登记表（每人一行：`name` / `group` / `grade`，原文不在默认目录时加 `file`，
+> 原文抠不出干净去向时加 `final`）与 `PINNED`（是否置顶）。
+> **加人 = 丢一个 md + 在 `SHARE` 里加一行 + 重跑**。该脚本依赖仓外的原文，所以**没有**挂进
+> `predev` / `prebuild`（服务器上没有那些 md）。
+>
+> **置顶由 `PINNED` 管**：`true` → 卡片写进 `top.json`，年份文件里的同名卡片由脚本摘掉；
+> 改回 `false` 再跑一次就回到时间轴。**两个文件都放会重复出现**（校验会报）。
+>
+> **生成边界**（重跑不会盖掉手写的文案）：`final`、文章 `subtitle`、卡片 `tagline` 都是
+> 「文件里已有就保留」，只有文件里没有（或传 `--reset-text`）才用推导值 / 兜底值。
+> 想让文案回到兜底值：`node scripts/gen_postgraduate_share.mjs --reset-text`。
+> 卡片 `title` 与文章 `title` 必须一致（校验会拦），生成器以文章标题为准同步卡片标题。
+>
+> 内联标记的口径：正文只认 `**加粗**`、`[文字](链接)`、`~~删除线~~`（`src/utils/inline.js`）。
+> 原文里用富文本编辑器排出来的`` `行内代码` ``站内渲染不出来，转换时会**把反引号去掉、只留文字**
+> （`stripCode()`，段落 / 标题 / 列表 / 表格 / 引用全走一遍）—— 别在数据里手写反引号，它会原样上屏。
+
 
 ---
 
@@ -1104,6 +1148,7 @@ npm run data:hero-thumbs   # 上游那套缩略图（384/256 两档；无消费�
 - `competitions.json`：`awards` 引用、`shortName`、`sessions` 合法性
 - `events/<年>.json` 的 `cards`：字段与顺序、`kind` / `category` 取值、`link` 必须是纯 id（不含 `/`）、日期倒序
 - `events/<年>.json` 的 `articles`：文章字段与顺序、`blocks` 非空、日期年份与所在文件一致、`related` block 指向的赛事必须存在、**id 必须以所在年份开头**（前端靠它定位文件）
+- `events/<年>.json` 的 `articles[id].authors`（多作者文章）：`authors` 必须是 **≥2 位**的数组、`name` 非空且不重名、`blocks` 非空、`group`/`grade`/`meta`/`final` 必须是字符串且不含 `|` 或换行；`related` block 在**每一位分享人的正文里**都查一遍
 - `events/top.json`：节点格式，且置顶条目不得在年份文件里重复出现
 - **每一张卡片的 `link` 必须在 `articles` 里存在对应文章**，`date` 与卡片一致（`kind: news` 还要求 `title` 一致）；无卡片入口的文章允许存在，报告里会列出数量
 
@@ -1126,6 +1171,12 @@ npm run data:hero-thumbs   # 上游那套缩略图（384/256 两档；无消费�
 渲染，迟到的排名仍然会覆盖上去**（`src/utils/honorRanking.js` 的 `rankWithTimeout`）。2026-09-24
 之前不是这样 —— 超时即把 `byName` 置成空 Map 并用它挡住重跑，3 秒后回来的排名被永久丢弃，
 网络慢一次那一页就再没有排序（回归集里 3 个用例钉住这条）。
+
+`test/postgraduate-share.test.mjs` 钉的是**多作者大事记的转换产物**（正文由 Markdown 转 blocks，
+块类型写错、表格缺列、整段丢掉时页面上只会「少一段」，`check_awards.mjs` 只看结构看不出来）：
+块类型必须在 `BlockRenderer.vue` 的白名单里、表格每行列数与表头一致、图片 src 有来源、
+没有空气泡，以及**生成器幂等**（直接跑 `--check` 应为「已是最新」）。
+原文在仓外取不到时这条自动跳过，不当失败。
 
 **改 `src/utils/honorRanking.js` 顶部那几张表或 `src/utils/honorCoverage.js` 的放行判据之前，先跑
 `npm test`** —— 这套口径是表驱动的，动一个系数会静默改变全站名次，这些快照就是那个报警器。

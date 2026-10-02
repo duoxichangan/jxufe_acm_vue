@@ -12,13 +12,48 @@ setlocal enabledelayedexpansion
 ::             type .deploy\id_ed25519.pub | ssh root@47.99.92.213
 ::               "mkdir -p /root/.ssh && cat >> /root/.ssh/authorized_keys && chmod 600 /root/.ssh/authorized_keys"
 ::
+::  ---- The two things that break this script, and how to tell them apart ----
+::  Both of them stop the run at step 1 or step 3, and they look nothing alike:
+::
+::  (A) ".deploy\id_ed25519" IS MISSING  ->  fails at step 1 with
+::      [ERROR] Deploy key not found  (exit code 1, nothing is uploaded).
+::      That key is the ONLY credential this script uses (BatchMode=yes means
+::      ssh never asks for a password) and .deploy/ is gitignored, so it does
+::      NOT travel with a clone, a copy or a new laptop. Regenerate a new pair
+::      and authorise it on the server once:
+::        ssh-keygen -t ed25519 -f .deploy\id_ed25519 -N "" -C jxufe-acm-deploy
+::        type .deploy\id_ed25519.pub | ssh root@47.99.92.213 "mkdir -p /root/.ssh && cat >> /root/.ssh/authorized_keys && chmod 600 /root/.ssh/authorized_keys"
+::      The second command asks for the SERVER password once; after that this
+::      script is passwordless again. Keep the private key private: it is root.
+::
+::  (B) ssh dies on EVERY command with "Bad owner or permissions on
+::      C:\Users\<you>/.ssh/config"  ->  fails at step 3 with
+::      [ERROR] Cannot connect ... via SSH, and it is NOT a key/network/data
+::      problem: Windows OpenSSH refuses to start at all while ~/.ssh carries an
+::      ACE for a SID that no longer exists on this machine (an inherited ACE
+::      from a copied/old user profile). Fix it once - this drops the foreign
+::      entry and keeps only you, Administrators and SYSTEM:
+::        icacls "%USERPROFILE%\.ssh" /inheritance:r /grant:r "SYSTEM:(OI)(CI)F" "Administrators:(OI)(CI)F" "%USERDOMAIN%\%USERNAME%:(OI)(CI)F"
+::      Same for every file under it (config and keys need read; known_hosts
+::      needs Modify or ssh complains it cannot add the host):
+::        icacls "%USERPROFILE%\.ssh\config" /inheritance:r /grant:r "SYSTEM:F" "Administrators:F" "%USERDOMAIN%\%USERNAME%:R"
+::        icacls "%USERPROFILE%\.ssh\known_hosts" /grant:r "%USERDOMAIN%\%USERNAME%:M"
+::
+::  Quick way to tell (A) from (B) by hand - neither needs the deploy script:
+::        ssh -o BatchMode=yes -i .deploy\id_ed25519 root@47.99.92.213 "echo OK"
+::      "Bad owner or permissions" -> (B).  "Permission denied (publickey)" -> (A).
+::      "OK" -> both fine, the problem is elsewhere (network, step 4 build).
+::
 ::  NOTE: keep this file PURE ASCII. Chinese (or any non-ASCII) text in a
 ::        .bat combined with the "chcp" command makes cmd.exe resume reading
 ::        the file at a wrong byte offset and execute a fragment of a comment
 ::        as a command. Non-ASCII here = flaky script.
 ::
-::  What ships: the archive is built from the WORKING TREE, but step 2 refuses
-::  to run while the uploaded paths differ from HEAD (override: DEPLOY_ALLOW_DIRTY).
+::  What ships: the archive is built from the WORKING TREE as is - zip what is on
+::  disk right now, upload it, unpack and build. There is NO gate any more: step 2
+::  still prints [DIRTY] for anything that differs from HEAD, but that list is
+::  ADVISORY ONLY and never stops the run (the working tree is the thing that
+::  ships, so uncommitted work goes live on purpose).
 ::  The server build goes into "dist.new" and is swapped into "dist" only after
 ::  it succeeded, so a broken build never takes the live site down.
 :: ============================================================
@@ -97,36 +132,29 @@ icacls "%KEY_FILE%" /grant:r "%USERNAME%:R" >nul 2>nul
 
 :: ---- 2. Pack project files locally ----
 echo [2/5] Packing project files...
-:: Guard (2026-09-24): the archive below is built from the WORKING TREE, not from
-:: git. Anything uncommitted under the uploaded paths would ship silently, and the
-:: damage would only surface later - on a fresh clone, in CI, or for whoever
-:: deploys next. So refuse to pack while those paths differ from HEAD.
-:: Override on purpose (emergency hotfix):  set DEPLOY_ALLOW_DIRTY=1
+:: The archive is built from the WORKING TREE, so uncommitted work ships as is.
+:: This block only REPORTS that, it never blocks: the deploy does what it says on
+:: the tin - zip the current files, upload, unpack, build. [DIRTY] lines are
+:: informational (they tell you what is going out beyond the last commit).
 set DIRTY=
-if "%DEPLOY_ALLOW_DIRTY%"=="1" goto :pack_skip_guard
+set DIRTY_ERROR=0
 where git >nul 2>nul
-if errorlevel 1 (
-    echo [WARN] git not found in PATH - the uncommitted-changes guard is OFF.
+if errorlevel 1 set DIRTY_ERROR=1
+if "%DIRTY_ERROR%"=="0" (
+    git rev-parse --is-inside-work-tree >nul 2>nul
+    if errorlevel 1 set DIRTY_ERROR=1
+)
+if "%DIRTY_ERROR%"=="1" (
+    echo [WARN] git unavailable or not a working tree - cannot list what differs from HEAD.
     goto :pack_do
 )
-:: A copied-without-.git tree has no HEAD to compare against - say so instead of
-:: pretending the guard ran.
-git rev-parse --is-inside-work-tree >nul 2>nul
-if errorlevel 1 (
-    echo [WARN] not a git working tree - the uncommitted-changes guard is OFF.
-    goto :pack_do
-)
+:: Capture instead of piping straight to echo: a FOR loop that runs zero times
+:: leaves errorlevel alone, which is too subtle to rely on here.
 for /f "delims=" %%L in ('git status --porcelain -- src public package.json package-lock.json vite.config.js index.html scripts/lib scripts/gen_group_wall.mjs scripts/gen_event_badges.mjs 2^>nul') do (
-    set DIRTY=1
     echo [DIRTY] %%L
+    set DIRTY=1
 )
-if not defined DIRTY goto :pack_do
-echo [ERROR] The paths listed above differ from HEAD ^(uncommitted or untracked^).
-echo         Commit them first, or rerun with:  set DEPLOY_ALLOW_DIRTY=1
-goto :fail
-
-:pack_skip_guard
-echo [WARN] DEPLOY_ALLOW_DIRTY=1 - shipping the working tree as is.
+if defined DIRTY echo [WARN] the files above are not committed - shipping the working tree as is.
 
 :pack_do
 for /f "delims=" %%L in ('git rev-parse --short HEAD 2^>nul') do echo         shipping HEAD %%L

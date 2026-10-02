@@ -335,21 +335,63 @@ for (const y of yearFiles) {
   // articles：字段与顺序
   for (const [id, a] of Object.entries(yearData[y].articles)) {
     const keys = Object.keys(a)
-    const expected = keys.includes('subtitle') ? ['title', 'date', 'subtitle', 'blocks'] : ['title', 'date', 'blocks']
+    // 两种正文形态：
+    //   blocks  —— 普通文章（正文在顶层）
+    //   authors —— 多作者文章（保研经验分享）：一条大事记里多位分享人，正文在 authors[i].blocks，
+    //              「切换分享人」的切换器只在多人（≥2）时才有意义，所以 1 人也算配置错误。
+    const variant = keys.includes('authors') ? 'authors' : 'blocks'
+    const expected = ['title', 'date']
+    if (keys.includes('subtitle')) expected.push('subtitle')
+    expected.push(variant)
     if (keys.join(',') !== expected.join(','))
       evProblems.push(`${y}.json articles["${id}"] 字段名/顺序不符: ${keys.join(',')}（期望 ${expected.join(',')}）`)
     if (!a.title) evProblems.push(`${y}.json articles["${id}"] title 为空`)
     if (a.date !== null && !/^\d{4}(-\d{2}(-\d{2})?)?$/.test(a.date)) evProblems.push(`${y}.json articles["${id}"] date 非法: ${JSON.stringify(a.date)}`)
-    if (!Array.isArray(a.blocks) || !a.blocks.length) evProblems.push(`${y}.json articles["${id}"] blocks 缺失或为空`)
-    // date 为 null 表示日期待考（与卡片一致），年份由所在文件给出
     if (a.date !== null && String(a.date).slice(0, 4) !== y) evProblems.push(`${y}.json articles["${id}"] 日期年份(${String(a.date).slice(0, 4)}) 与所在文件(${y}) 不一致`)
+
+    // 正文所在处（普通文章一处、多作者文章每位一处），related block 的检查对两者一视同仁
+    const bodies = []
+    if (variant === 'blocks') {
+      if (!Array.isArray(a.blocks) || !a.blocks.length) evProblems.push(`${y}.json articles["${id}"] blocks 缺失或为空`)
+      bodies.push(a.blocks)
+    } else {
+      const AUTHORS = ['name', 'group', 'grade', 'meta', 'final', 'blocks']
+      const authors = a.authors
+      if (!Array.isArray(authors) || authors.length < 2) {
+        evProblems.push(`${y}.json articles["${id}"] authors 必须是不少于 2 位的数组（1 位就不该用这个形态）`)
+      } else {
+        const names = new Set()
+        authors.forEach((au, i) => {
+          const at = `${y}.json articles["${id}"] authors[${i}]`
+          const akeys = Object.keys(au || {})
+          // group / grade / meta / final 属可省的展示字段（缺哪个就不显示哪段），但给了就得按序
+          if (akeys.join(',') !== AUTHORS.slice(0, akeys.length).join(','))
+            evProblems.push(`${at} 字段名/顺序不符: ${akeys.join(',')}（期望 ${AUTHORS.join(',')}，group/grade/meta/final 可省）`)
+          if (!au.name) evProblems.push(`${at} name 为空`)
+          else if (names.has(au.name)) evProblems.push(`${at} name 重复: ${au.name}`)
+          else names.add(au.name)
+          // 这几个字段会被页面直接渲染成文本，混进表格竖线说明生成时抠错了行
+          for (const k of ['name', 'group', 'grade', 'meta', 'final']) {
+            if (typeof au[k] !== 'string') evProblems.push(`${at} ${k} 应是字符串`)
+            else if (/[|\n]/.test(au[k])) evProblems.push(`${at} ${k} 含非法字符: ${JSON.stringify(au[k])}`)
+          }
+          if (!Array.isArray(au.blocks) || !au.blocks.length) evProblems.push(`${at} blocks 缺失或为空`)
+          else bodies.push(au.blocks)
+        })
+      }
+    }
     // related block（大事记文章 → 竞赛介绍页）指向的赛事必须存在
-    for (const b of a.blocks || []) {
-      if (b.type !== 'related') continue
-      if (!b.text || !b.to) evProblems.push(`${y}.json articles["${id}"] related block 缺 text/to`)
-      const m = String(b.to || '').match(/^\/competition\/([^/]+)$/)
-      if (!m) evProblems.push(`${y}.json articles["${id}"] related.to 形状非法: ${b.to}`)
-      else if (!compBySlug[m[1]]) evProblems.push(`${y}.json articles["${id}"] related.to 指向未知赛事: ${b.to}`)
+    for (const body of bodies) {
+      for (const b of body) {
+        // heading 的层级：1..3（渲染器只认三档，写 4 会被夹到 3，属于数据里的笔误）
+        if (b.type === 'heading' && b.level !== undefined && ![1, 2, 3].includes(b.level))
+          evProblems.push(`${y}.json articles["${id}"] heading.level 应为 1..3（或省略）：${JSON.stringify(b.level)}`)
+        if (b.type !== 'related') continue
+        if (!b.text || !b.to) evProblems.push(`${y}.json articles["${id}"] related block 缺 text/to`)
+        const m = String(b.to || '').match(/^\/competition\/([^/]+)$/)
+        if (!m) evProblems.push(`${y}.json articles["${id}"] related.to 形状非法: ${b.to}`)
+        else if (!compBySlug[m[1]]) evProblems.push(`${y}.json articles["${id}"] related.to 指向未知赛事: ${b.to}`)
+      }
     }
   }
 }

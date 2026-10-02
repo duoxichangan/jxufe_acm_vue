@@ -14,6 +14,7 @@
     "test": "node --test",
     "verify": "npm run data:check && npm test",
     "data:gen": "node scripts/gen_events_articles.mjs",
+    "data:share": "node scripts/gen_postgraduate_share.mjs",
     "data:hero-wall": "node scripts/gen_hero_wall.mjs",
     "data:hero-thumbs": "powershell -ExecutionPolicy Bypass -File scripts/gen_hero_wall_thumbs.ps1",
     "data:group-wall": "node scripts/gen_group_wall.mjs",

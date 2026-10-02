@@ -18,11 +18,16 @@ const cells = (row) => row.map((c) => (typeof c === 'string' ? { text: c } : c))
     <p v-for="(p, i) in block.paras" :key="i" v-html="html(p)"></p>
   </section>
 
-  <!-- 小标题 -->
-  <h2 v-else-if="block.type === 'heading'" class="b-heading">
+  <!-- 小标题（level 1..3 = 大节 / 小节 / 再下一层；不写按 1，与既有数据一致） -->
+  <component
+    :is="`h${Math.min(Number(block.level) || 1, 3) + 1}`"
+    v-else-if="block.type === 'heading'"
+    class="b-heading"
+    :class="`b-heading--l${Math.min(Number(block.level) || 1, 3)}`"
+  >
     <i v-if="block.icon" :class="`fas ${block.icon}`"></i>
     <span v-html="html(block.text)"></span>
-  </h2>
+  </component>
 
   <!-- 图片组 -->
   <section v-else-if="block.type === 'images'" class="b-images">
@@ -157,33 +162,85 @@ const cells = (row) => row.map((c) => (typeof c === 'string' ? { text: c } : c))
 .b-text { margin-bottom: 28px; }
 .b-text p { margin-bottom: 14px; }
 
+/* ── 小标题：三档层级 ──
+   level 1 = 大节（整行的分割感：大字 + 右延细线）
+   level 2 = 小节（中字 + 底部渐变短线）
+   level 3 = 再下一层（小字，无装饰，靠左侧色条区分）
+   三档的尺寸 / 字重 / 留白必须一眼可辨，否则长文里层级就糊成一片。
+   不写 level 的历史数据按 1 处理，渲染结果与改动前一致。 */
 .b-heading {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 40px 0 20px;
   color: var(--primary-dark);
-  font-size: 1.45rem;
   font-weight: 700;
+  margin: 40px 0 20px;
+}
+
+.b-heading--l1 {
+  font-size: 1.45rem;
+  margin: 48px 0 22px;
   padding-bottom: 12px;
   position: relative;
 }
-.b-heading::after {
+/* 右延细线：只有大节有，用它把「一段新内容从这里开始」说清楚 */
+.b-heading--l1::after {
   content: '';
   position: absolute;
   left: 0;
+  right: 0;
   bottom: 0;
-  width: 40px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(26, 115, 232, 0.35), rgba(26, 115, 232, 0));
+}
+/* 底部短粗线：压在细线左端 */
+.b-heading--l1::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  z-index: 1;
+  width: 44px;
   height: 3px;
   border-radius: 2px;
   background: var(--gradient-primary);
 }
+
+.b-heading--l2 {
+  font-size: 1.2rem;
+  margin: 36px 0 16px;
+  padding-bottom: 10px;
+  position: relative;
+}
+.b-heading--l2::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 32px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--gradient-primary);
+}
+
+.b-heading--l3 {
+  font-size: 1.02rem;
+  font-weight: 600;
+  margin: 26px 0 12px;
+  padding-left: 12px;
+  border-left: 3px solid rgba(26, 115, 232, 0.35);
+  color: var(--primary-dark);
+}
+.b-heading--l3 i {
+  font-size: 0.92em;
+}
+
 .b-heading i { color: var(--primary); }
 
 .b-images {
   display: flex;
   flex-wrap: wrap;
-  gap: 2rem;
+  gap: 4rem;
   justify-content: center;
   margin: 32px 0;
 }
@@ -200,7 +257,11 @@ const cells = (row) => row.map((c) => (typeof c === 'string' ? { text: c } : c))
   max-width: 800px;
   margin: 12px auto;
   border-radius: var(--radius-lg);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  /* 图片浮起来：三层阴影（贴边勾边 + 近距投影 + 远距柔光），比单层阴影更有立体感 */
+  box-shadow:
+    0 0 0 1px rgba(15, 23, 42, 0.06),
+    0 6px 16px rgba(15, 23, 42, 0.12),
+    0 18px 44px rgba(15, 23, 42, 0.14);
 }
 
 .b-images figcaption,
@@ -434,5 +495,9 @@ tr:hover { background: rgba(26,115,232,0.06); }
 
 @media (max-width: 768px) {
   .partner-logo { width: 80px; height: 80px; }
+  /* 手机上三档一起收一档，但保持彼此的差 */
+  .b-heading--l1 { font-size: 1.26rem; margin: 38px 0 18px; }
+  .b-heading--l2 { font-size: 1.08rem; margin: 30px 0 14px; }
+  .b-heading--l3 { font-size: 0.96rem; margin: 24px 0 11px; }
 }
 </style>

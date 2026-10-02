@@ -1,6 +1,14 @@
 [
   {
     "kind": "news",
+    "date": "2026-10-02",
+    "category": "club",
+    "title": "协会成员保研经验分享贴",
+    "tagline": "命运的洪流不可阻挡，我的回答是向前！",
+    "link": "2026-10-2-postgraduate-share"
+  },
+  {
+    "kind": "news",
     "date": "2025-10-01",
     "category": "club",
     "title": "新生问题大解答",

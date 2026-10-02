@@ -24,6 +24,7 @@ node scripts/gen_group_wall.mjs && node scripts/gen_event_badges.mjs
 | --- | --- | --- |
 | `data:check` | `check_awards.mjs` | 改完 `public/data/` 必跑。只读校验：`SCHEMA` 登记、字段、条数、跨文件一致性。**新增 awards 文件要先去它的 `SCHEMA` 登记**，否则报「未在 schema 中登记」 |
 | `data:gen` | `gen_events_articles.mjs` | 改 `scripts/source/` 之后重跑（幂等，结果一致） |
+| `data:share` | `gen_postgraduate_share.mjs` | 保研经验分享（多作者大事记文章）：**加/改分享人之后重跑**。原文是**仓外**的 Markdown（默认桌面 `share\`，`file:` / `--source` 可换），转换逻辑、分享人登记表 `SHARE`、置顶开关 `PINNED` 都在脚本里（`PINNED: true` → 卡片进 `top.json`，年份文件里的同名卡片由脚本摘掉）。**刻意不挂进 `predev`/`prebuild`**：服务器上没有那些 md，挂了就会构建失败；正文已落进 `public/data/events/2026.json`，一次生成、长期有效 |
 | `data:hero-wall` | `gen_hero_wall.mjs` | 给首页留言墙补**空条目**，已有条目一个字都不动（`hero_wall.json` 是会长手写的真源，别拿它当生成物） |
 | `data:group-wall` | `gen_group_wall.mjs` | 只想重生成成员墙、不跑整条 `prebuild` 时 |
 | `data:event-badges` | `gen_event_badges.mjs` | 同上 |

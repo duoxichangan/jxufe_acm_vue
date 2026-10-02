@@ -1,10 +1,12 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, nextTick, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { loadArticle } from '../utils/eventsSource.js'
 import BlockRenderer from '../components/action/BlockRenderer.vue'
+import AuthorSwitcher from '../components/action/AuthorSwitcher.vue'
 
 const route = useRoute()
+const router = useRouter()
 
 // 一篇文章 = events/<年>.json 里 articles[id]
 //
@@ -19,6 +21,45 @@ const article = ref(null)
 const loading = ref(true)
 const error = ref(false)
 
+// ── 多作者文章（保研经验分享）：一条大事记里放多位分享人，一次只看一位 ──
+// 正文在 authors[i].blocks；没有 authors 的文章（其余全部文章）走原来的 article.blocks。
+const authors = computed(() => (Array.isArray(article.value?.authors) ? article.value.authors : []))
+const isMultiAuthor = computed(() => authors.value.length > 0)
+const activeIndex = ref(0)
+
+const activeAuthor = computed(() => authors.value[activeIndex.value] || null)
+/** 当前要渲染的 blocks：多作者取选中那位，普通文章取顶层 */
+const blocks = computed(() => (isMultiAuthor.value ? activeAuthor.value?.blocks || [] : article.value?.blocks || []))
+
+/** 分享人定位支持 URL 参数 ?a=<序号>，刷新 / 分享链接能落到同一个人 */
+const indexFromQuery = () => {
+  const n = Number.parseInt(String(route.query.a ?? ''), 10)
+  return Number.isInteger(n) && n >= 0 && n < authors.value.length ? n : 0
+}
+
+function selectAuthor(i) {
+  if (i === activeIndex.value) return
+  activeIndex.value = i
+  // replace 而非 push：连点几个人不该在浏览历史里堆一串记录，但地址栏仍可分享
+  router.replace({
+    query: i === 0 ? {} : { ...route.query, a: String(i) }
+  })
+}
+
+// 换人后正文长度会变，视线留在原地容易落到半截：回到文章顶部
+watch(activeIndex, async () => {
+  await nextTick()
+  document.documentElement.scrollTop = 0
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+})
+
+watch(
+  () => route.query.a,
+  () => {
+    if (isMultiAuthor.value) activeIndex.value = indexFromQuery()
+  }
+)
+
 watch(
   id,
   async (v) => {
@@ -32,6 +73,7 @@ watch(
     try {
       // 返回 null 表示文件不存在（→ 未找到该文章）；抛错表示加载失败
       article.value = await loadArticle(v)
+      activeIndex.value = indexFromQuery()
     } catch (e) {
       console.error(`加载文章 ${v} 失败:`, e)
       error.value = true
@@ -72,8 +114,25 @@ const failed = computed(() => error.value)
           <p v-if="article.subtitle" class="subtitle">{{ article.subtitle }}</p>
         </header>
 
-        <div class="article-body">
-          <BlockRenderer v-for="(block, i) in article.blocks" :key="i" :block="block" />
+        <!-- 多位分享人：选一个人看（正文一次只放一位，两位都是长篇） -->
+        <AuthorSwitcher
+          v-if="isMultiAuthor"
+          :authors="authors"
+          :active="activeIndex"
+          @select="selectAuthor"
+        />
+
+        <div
+          id="post-body"
+          class="article-body"
+          :class="{ 'article-body--switching': isMultiAuthor }"
+          :role="isMultiAuthor ? 'tabpanel' : null"
+        >
+          <Transition name="author-fade" mode="out-in">
+            <div :key="isMultiAuthor ? activeIndex : 'single'">
+              <BlockRenderer v-for="(block, i) in blocks" :key="i" :block="block" />
+            </div>
+          </Transition>
         </div>
 
         <RouterLink to="/all-action" class="back-link">
@@ -172,6 +231,34 @@ article {
   color: var(--primary);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+/* 划掉的话（原文用 `~~…~~` 自嘲的那些）：压暗一档，别和正文抢注意力 */
+.article-body :deep(del) {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+/* ── 换分享人时的淡入淡出 ──
+   mode="out-in" + 固定高度容器：退场是绝对定位的，容器高度由进场的那份撑着，
+   所以长文换短文不会出现「页面先塌一下再弹回来」。 */
+.author-fade-enter-active,
+.author-fade-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.author-fade-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.author-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+.article-body--switching {
+  position: relative;
 }
 
 /* ── 返回链接 ── */
