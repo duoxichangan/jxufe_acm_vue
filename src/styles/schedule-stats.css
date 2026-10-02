@@ -1,0 +1,116 @@
+/* ==========================================================================
+   赛程仪表板（`.sched-stats`）—— 看板卡片顶部与完整表顶部**共用一份**
+   --------------------------------------------------------------------------
+   会长 2026-10-02：「『共 35 场待办 · 本月 25 场 · 线上赛 19 场（牛客 7 · AtCoder 8 ·
+   Codeforces 4）报名中 1 场』我希望做成类似仪表板的东西」→ 一格一个指标。
+   随后又一条：「线上赛要分平台，然后线下赛要分赛事，并且要显示 logo」——
+   于是原先那格「线上赛 19（小字写平台分布）」拆成**一格一个平台**，线下另加**一格一个赛事**。
+   再一条：「**去除第一行的那些场待办 35 本月 25 下月 6 报名中**」——
+   于是「时间与状态」那一整条带撤掉，**只剩下面这一条「赛事与平台」带**。
+
+   现在这块仪表板 = 一格一个赛事（线下，顶部色 = 该赛事最常见的类型色）+ 一格一个平台
+   （线上，顶部色统一 --cat-online），两拨格子都带 logo（没登记图标的赛事给首字母圆片）。
+   结构在 components/ScheduleStats.vue；数值为 0 / 没有这一项时整格不渲染。
+
+   已撤的那条带（场待办 / 本月 / 下月 / 报名中 / 已收起 / 时间待定）：
+   数字仍在 src/utils/scheduleView.js 的 `scheduleStats()` 里算，别在别处再算一遍；
+   「已自动收起 N 场结束的」搬回了完整表页脚（UpcomingSchedule.vue 的 footParts）。
+   要恢复那条带，把下面「已撤」注释里那 6 条色类一并启用即可（模板里对应的 6 个
+   `<span class="sched-stat sched-stat--…">` 见 ScheduleStats.vue 文件头注释）。
+
+   样式放全局（与 honors.css / view-toggle.css 同一做法）：**跨页复用的组件级样式**写两遍必然漂移；
+   各页面自己的排布（外边距、分隔线）留在各自的 scoped 样式里。
+   每格都带 `data-stat` —— 回归与页面探针按它取数（`contest-<slug>` / `platform-<slug>`），
+   文案改了也不会让断言失效。
+   ========================================================================== */
+.sched-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+  gap: 8px;
+}
+/* 带 logo 的那条带：格子更宽（124px 起），名字整整齐齐写得下。
+   ⚠ 别调回状态格那个 88px：11 格并排时「Codeforces」会被截成「Codef…」、「百度之星」截成
+   「百度…」（2026-10-02 截图实测；回归集有一条用正则钉着这个宽度）。 */
+.sched-stats--catalog {
+  grid-template-columns: repeat(auto-fit, minmax(124px, 1fr));
+}
+.sched-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  padding: 8px 11px 9px;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  border-top: 3px solid var(--stat-color, var(--primary));
+  border-radius: var(--radius-md);
+}
+.sched-stat em {
+  font-style: normal;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: var(--text-light);
+  white-space: nowrap;
+}
+.sched-stat b {
+  font-size: 1.35rem; /* 赛事/平台格多，一行要放得下；原先状态格是 1.5rem */
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--text);
+  font-variant-numeric: tabular-nums; /* 数字等宽：几格并排时数字不会左右跳 */
+}
+
+/* ── 带 logo 的格子（赛事 / 平台）：标签那行改成 flex（logo + 名字）──
+   logo 比文字大一点（18px）才好认；名字过长时省略号，数字另起一行，不会被挤掉。 */
+.sched-stat--contest em,
+.sched-stat--platform em {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+.sched-stat__logo {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  object-fit: contain;
+}
+/* 没图标的赛事（协会自办 / 校赛…）用首字母小圆片顶上 —— 那格空着会像漏图 */
+.sched-stat__initial {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--cat-soft, var(--bg-light));
+  color: var(--text);
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.sched-stat__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── 指标色（顶部那道 3px）──
+   类型色引 tokens 的 --cat-*，与行左边框、筛选 chip 同源；
+   两种格子的颜色由组件按赛事/平台内联给出（`--stat-color: var(--cat-x)`），
+   这里只留兜底值，免得某个新 slug 没排到类时边框变成 currentColor。 */
+.sched-stat--contest { --stat-color: var(--primary); }
+.sched-stat--platform { --stat-color: var(--cat-online); }
+
+/* ── 已撤（2026-10-02 会长：「去除第一行的那些场待办 35 本月 25 下月 6 报名中」）──
+   下面 6 条属于「时间与状态」那条带。要恢复那条带就取消注释，并在 ScheduleStats.vue 里
+   恢复对应的 6 个格子（数字口径 scheduleStats() 一直没动过）：
+     .sched-stat--total   { --stat-color: var(--primary); }
+     .sched-stat--month   { --stat-color: var(--primary); }
+     .sched-stat--next    { --stat-color: var(--cat-inv); }
+     .sched-stat--signup  { --stat-color: var(--accent); }
+     .sched-stat--closed  { --stat-color: var(--cat-other); }
+     .sched-stat--pending { --stat-color: var(--cat-club); }
+   「报名中」那格当时还额外给数字上了色（学生最容易错过的就是它）：
+     .sched-stat--signup b { color: var(--accent); }
+   两条带的间距当时靠外层 .sched-stats-wrap { display:grid; gap:8px }。 */

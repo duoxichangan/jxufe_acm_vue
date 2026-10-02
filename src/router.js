@@ -6,6 +6,9 @@ const routes = [
   { path: '/all-action', name: 'all-action', component: () => import('./views/AllActionView.vue') },
   { path: '/post/:id', name: 'post', component: () => import('./views/PostView.vue') },
   { path: '/contest', name: 'contest', component: () => import('./views/ContestView.vue') },
+  // 近期赛事独立页（2026-10-02 会长：「把近期赛时显示为独立页面，然后在竞赛信息页，
+  // 只显示一个看板，点击进入详情页」）。竞赛页的看板是它的入口，页脚也有一处。
+  { path: '/upcoming', name: 'upcoming', component: () => import('./views/UpcomingView.vue') },
   {
     path: '/competition/:slug/:year',
     name: 'competition-event',

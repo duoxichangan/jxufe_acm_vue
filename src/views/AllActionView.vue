@@ -882,17 +882,20 @@ const unloadedCount = computed(() => years.value.length - loadedYears.value.leng
    inv=ICPC/CCPC全国邀请赛  reg=ICPC亚洲区域赛/CCPC全国赛  prov=xcpc省赛(含区赛)
    net=网络预选赛  tts=天梯赛  lanqiao=蓝桥杯  chuanzhi=传智杯
    baidu=百度之星  club=社团活动/讲座/集训  school=校赛  other=其他 */
-.tl-card--inv { --cat: #1e88e5; }
-.tl-card--reg { --cat: #7c4dff; }
-.tl-card--prov { --cat: #43a047; }
-.tl-card--net { --cat: #00acc1; }
-.tl-card--tts { --cat: #f9a825; }
-.tl-card--lanqiao { --cat: #3949ab; }
-.tl-card--chuanzhi { --cat: #ff7043; }
-.tl-card--baidu { --cat: #e53935; }
-.tl-card--club { --cat: #78909c; }
-.tl-card--school { --cat: #d81b60; }
-.tl-card--other { --cat: #b0bec5; }
+/* ⚠ 色值一律引 tokens.css 的 `--cat-*`（2026-10-02 提上去的）：竞赛信息页的「近期赛事」
+   也要用同一套颜色标比赛类型，若这里继续写死十六进制，两页就会各自漂移。
+   改颜色只改 src/styles/tokens.css，本页与赛程表同时变。 */
+.tl-card--inv { --cat: var(--cat-inv); }
+.tl-card--reg { --cat: var(--cat-reg); }
+.tl-card--prov { --cat: var(--cat-prov); }
+.tl-card--net { --cat: var(--cat-net); }
+.tl-card--tts { --cat: var(--cat-tts); }
+.tl-card--lanqiao { --cat: var(--cat-lanqiao); }
+.tl-card--chuanzhi { --cat: var(--cat-chuanzhi); }
+.tl-card--baidu { --cat: var(--cat-baidu); }
+.tl-card--club { --cat: var(--cat-club); }
+.tl-card--school { --cat: var(--cat-school); }
+.tl-card--other { --cat: var(--cat-other); }
 .tl-card h3 {
   padding-right: 96px; /* 给右上角的奖牌角标留位 */
   font-size: var(--font-size-lg);
