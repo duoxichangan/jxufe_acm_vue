@@ -2,6 +2,14 @@
   "cards": [
     {
       "kind": "news",
+      "date": "2026-10-25",
+      "category": "club",
+      "title": "2026 程序设计竞赛协会新生选拔赛",
+      "tagline": "10 月 25 日（周日）开赛，报名截止 10 月 23 日 23:59",
+      "link": "2026-10-25-freshman"
+    },
+    {
+      "kind": "news",
       "date": "2026-09-29",
       "category": "club",
       "title": "2026 年新生编程语法培训",
@@ -4029,6 +4037,69 @@
               ]
             }
           ]
+        }
+      ]
+    },
+    "2026-10-25-freshman": {
+      "title": "2026 程序设计竞赛协会新生选拔赛",
+      "date": "2026-10-25",
+      "subtitle": "DOMjudge 平台 · ACM 赛制 · 校内新生选拔",
+      "blocks": [
+        {
+          "type": "text",
+          "paras": [
+            "新生选拔赛是程序设计竞赛协会的传统赛事，面向 2026 级新生，选拔有程序设计基础、愿意一起训练打比赛的同学加入协会。",
+            "今年的新生选拔赛定在 **2026 年 10 月 25 日（周日）**，比赛时长、比赛地点待定，请以随后发布的《2026 程序设计竞赛协会新生选拔赛章程》为准。"
+          ]
+        },
+        {
+          "type": "info",
+          "heading": "比赛信息",
+          "icon": "fa-info-circle",
+          "cards": [
+            {
+              "icon": "fa-calendar-alt",
+              "title": "比赛时间",
+              "desc": "2026 年 10 月 25 日（周日）"
+            },
+            {
+              "icon": "fa-hourglass-half",
+              "title": "比赛时长",
+              "desc": "待定，应该不小于三个半小时"
+            },
+            {
+              "icon": "fa-location-dot",
+              "title": "比赛地点",
+              "desc": "待定，应该会定在新建的实训大楼"
+            },
+            {
+              "icon": "fa-desktop",
+              "title": "比赛平台",
+              "desc": "DOMjudge"
+            },
+            {
+              "icon": "fa-trophy",
+              "title": "比赛赛制",
+              "desc": "ACM 赛制"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "text": "报名方式",
+          "level": 2,
+          "icon": "fa-pen-to-square"
+        },
+        {
+          "type": "text",
+          "paras": [
+            "请填写 [2026 学年 程序设计竞赛协会 新生赛 报名表（校内）](https://docs.qq.com/form/page/DWUtrZVhzbWRCU2hk)。",
+            "**收集表截止时间：10 月 23 日 23:59**，想参加的同学记得在此之前提交。"
+          ]
+        },
+        {
+          "type": "highlight",
+          "text": "更多细节（赛程安排、评测环境、奖项设置等）请等待后续发布的《2026 程序设计竞赛协会新生选拔赛章程》。"
         }
       ]
     }
