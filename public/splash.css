@@ -1,0 +1,64 @@
+/* The original three-colour mark anchors the startup animation. */
+#site-splash {
+  position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center;
+  overflow: hidden; background: #f5f7fa; color: #154d7b; text-align: center;
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  transition: opacity .45s ease; animation: splash-safe 0s 15s forwards;
+}
+#site-splash.leaving { opacity: 0; pointer-events: none; }
+.splash-grid { position: absolute; inset: -20%; opacity: .3;
+  background-image: linear-gradient(#1a73e818 1px, transparent 1px), linear-gradient(90deg,#1a73e818 1px,transparent 1px);
+  background-size: 48px 48px; transform: perspective(600px) rotateX(58deg) translateY(30%);
+  mask-image: radial-gradient(ellipse,black,transparent 65%); }
+.splash-scene { position: relative; padding: 24px; }
+.splash-emblem { position: relative; width: 280px; height: 280px; margin: auto; display: grid; place-items: center; }
+.splash-halo { position: absolute; inset: -60px; border-radius: 50%;
+  background: conic-gradient(from 40deg,#1a73e822,#ffd50022,#b91c1c14,#1a73e822);
+  filter: blur(32px); animation: splash-breathe 3s ease-in-out infinite alternate; }
+.splash-orbit { position: absolute; inset: 15px; border: 1px solid #1a73e825; border-radius: 50%; animation: splash-orbit 5s linear infinite; }
+.splash-orbit i { position: absolute; left: 50%; top: -4px; width: 7px; height: 7px; border-radius: 50%; background: #1a73e8; box-shadow: 0 0 18px #1a73e8; }
+.splash-orbit--gold { inset: 0; border-color: #d8b40024; animation-duration: 7s; animation-direction: reverse; }
+.splash-orbit--gold i { background: #e5bc00; box-shadow: 0 0 18px #ffd500; }
+.splash-orbit--red { inset: 32px; border-style: dashed; border-color: #b91c1c16; animation-duration: 10s; }
+.splash-orbit--red i { background: #bb2028; box-shadow: 0 0 14px #bb2028; }
+.splash-logo { position: relative; width: 160px; height: 160px; transform: perspective(600px) rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg)); transition: transform .15s ease-out; }
+.splash-logo img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 15px 12px #174d7a22); }
+.splash-logo span { position: absolute; inset: 0; background: linear-gradient(110deg,transparent 35%,#ffffffb0 50%,transparent 65%); mask: url('/images/favicon.png') center/contain no-repeat; animation: splash-shine 2.6s ease-in-out infinite; }
+.splash-eyebrow { font-size: 10px; letter-spacing: 4px; color: #627c93; margin: 22px 0 12px; }
+.splash-scene h2 { font-size: clamp(34px,6vw,46px); font-weight: 300; letter-spacing: 3px; margin: 0; }
+.splash-scene h2 span { color: #d1a900; }
+.splash-caption { color: #76818d; font-size: 13px; letter-spacing: 2px; margin: 16px 0 26px; }
+.splash-track { width: 132px; height: 2px; margin: auto; overflow: hidden; background: #dce4ed; }
+.splash-track i { display: block; width: 70%; height: 100%; background: linear-gradient(90deg,#1a73e8,#ffd500,#b91c1c); animation: splash-flow 1.5s ease-in-out infinite; }
+@keyframes splash-orbit { to { transform: rotate(360deg); } }
+@keyframes splash-breathe { to { transform: scale(1.18) rotate(30deg); opacity: .55; } }
+@keyframes splash-arrive { from { opacity: 0; transform: scale(.75) translateY(15px) rotate(-12deg); } to { opacity: 1; transform: none; } }
+@keyframes splash-shine { 0%,100% { opacity: 0; background-position: -180px 0; } 40% { opacity: .8; } 70% { opacity: 0; background-position: 180px 0; } }
+@keyframes splash-flow { from { transform: translateX(-110%); } to { transform: translateX(160%); } }
+@keyframes splash-safe { to { visibility: hidden; pointer-events: none; } }
+@media (max-width: 576px) { .splash-emblem { width: 230px; height: 230px; } .splash-logo { width: 140px; height: 140px; } }
+@media (prefers-reduced-motion: reduce) {
+  #site-splash { transition: none; }
+  #site-splash .splash-scene * { animation: none; }
+  .splash-logo span { display: none; }
+}
+
+/* Three clipped copies preserve the original artwork while its coloured parts assemble. */
+.splash-pieces { position: absolute; inset: 0; }
+.splash-piece--blue { clip-path: polygon(0 50%,27% 23%,37% 33%,20% 50%,30% 60%,20% 70%); --from-x:-100px; --from-y:-25px; --from-r:-45deg; animation: splash-assemble 3.2s cubic-bezier(.22,1,.36,1) both; }
+.splash-piece--gold { clip-path: polygon(20% 70%,70% 20%,80% 30%,30% 80%); --from-x:0px; --from-y:100px; --from-r:35deg; animation: splash-assemble 3.2s .08s cubic-bezier(.22,1,.36,1) both; }
+.splash-piece--red { clip-path: polygon(70% 40%,80% 30%,100% 50%,73% 77%,63% 67%,80% 50%); --from-x:100px; --from-y:-25px; --from-r:45deg; animation: splash-assemble 3.2s .16s cubic-bezier(.22,1,.36,1) both; }
+.splash-emblem.is-pulsing .splash-pieces { animation: splash-tap .7s ease-out; }
+.splash-emblem.is-pulsing .splash-halo { animation: splash-tap .7s ease-out; }
+@keyframes splash-assemble {
+  0% { opacity:0; transform:translate(var(--from-x),var(--from-y)) rotate(var(--from-r)) scale(.7); }
+  18% { opacity:1; }
+  42% { transform:translate(0,0) rotate(0) scale(1); }
+  65% { transform:translate(calc(var(--from-x) * .18),calc(var(--from-y) * .18)) rotate(0) scale(1.04); }
+  90%,100% { opacity:1; transform:none; }
+}
+@keyframes splash-tap { 40% { transform:scale(1.15); filter:brightness(1.25); } 100% { transform:scale(1); } }
+@media(prefers-reduced-motion:reduce) {
+  .splash-logo { transform:none; transition:none; }
+  #site-splash .splash-piece { animation:none; }
+}

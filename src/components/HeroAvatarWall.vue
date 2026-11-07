@@ -113,7 +113,7 @@ const props = defineProps({
   /** 悬浮卡片的文案（手写物） */
   copyUrl: { type: String, default: '/data/hero_wall.json' },
   /** 开关按钮的文案 —— 想换词在 HomeView 传 prop 即可，不用碰组件 */
-  label: { type: String, default: '成员墙' },
+  label: { type: String, default: '人物墙' },
   labelActive: { type: String, default: '返回' },
 })
 const emit = defineEmits(['update:active', 'tile-hover'])
@@ -244,7 +244,7 @@ const normalizeTags = (list) => {
             family: String(t?.family ?? ''),
           }
     )
-    .filter((t) => t.text.trim())
+    .filter((t) => t.text.trim() && !/协会|会长/.test(t.text))
 }
 
 async function loadData() {

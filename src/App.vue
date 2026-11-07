@@ -1,9 +1,9 @@
 <script setup>
+import WelcomeNotice from './components/WelcomeNotice.vue'
 import { onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import AppHeader from './components/AppHeader.vue'
 import AppFooter from './components/AppFooter.vue'
-import FloatingJoin from './components/FloatingJoin.vue'
 import { useCodeTrail } from './composables/useCodeTrail.js'
 import { useCursorRipple } from './composables/useCursorRipple.js'
 
@@ -21,8 +21,8 @@ const greet = () => {
     '%c🐟 woodfish到此一游 🐟',
     'color:#4CAF50;font-size:20px;font-weight:bold;text-shadow:2px 2px 4px rgba(0,0,0,0.3);'
   )
-  console.log('%c欢迎来到程序设计竞赛协会！', 'color:#2196F3;font-size:14px;font-weight:bold;')
-  console.log('%c如果你对我们的网站感兴趣，欢迎加入我们！', 'color:#FF9800;font-size:12px;')
+  console.log('%c欢迎来到代码与日常！', 'color:#2196F3;font-size:14px;font-weight:bold;')
+  console.log('%c如果你对这里的内容感兴趣，欢迎交流！', 'color:#FF9800;font-size:12px;')
 }
 const check = () => {
   const open =
@@ -64,6 +64,7 @@ onUnmounted(() => {
     ></span>
   </div>
 
+  <WelcomeNotice />
   <AppHeader />
   <main>
     <RouterView v-slot="{ Component }">
@@ -73,5 +74,4 @@ onUnmounted(() => {
     </RouterView>
   </main>
   <AppFooter v-if="route.name !== 'home'" />
-  <FloatingJoin />
 </template>

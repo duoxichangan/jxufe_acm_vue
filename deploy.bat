@@ -5,7 +5,7 @@ setlocal enabledelayedexpansion
 ::  jxufe ACM website - one click deploy (Windows)
 ::
 ::  Server : root@47.99.92.213
-::  Site   : https://jxufe-acm.cn   (nginx root: /var/www/jxufe_acm_vue/dist)
+::  Site   : https://new-acmer.cn   (nginx root: /var/www/jxufe_acm_vue/dist)
 ::
 ::  Auth   : SSH key .deploy\id_ed25519  (no password needed)
 ::           If the server is ever rebuilt, re-install the key with:
@@ -63,7 +63,7 @@ set SERVER_IP=47.99.92.213
 set SERVER_USER=root
 set SERVER_PORT=22
 set REMOTE_PATH=/var/www/jxufe_acm_vue
-set SITE_URL=https://jxufe-acm.cn
+set SITE_URL=https://new-acmer.cn
 
 :: ---- Local config (leave as is) ----
 :: The "prebuild" hook in package.json runs these TWO generators on the server

@@ -1,15 +1,10 @@
 <script setup>
-import { ref } from 'vue'
 import { useJson } from '../composables/useJson'
 
 const { data: links, loading, error } = useJson('/data/links.json', {
   initial: { official: [], members: [], apply: { requirements: [], contacts: [] } }
 })
 
-const opened = ref({})
-const toggle = (name) => {
-  opened.value[name] = !opened.value[name]
-}
 const linkText = (m) => m.linkText || '访问个人网站'
 </script>
 
@@ -24,7 +19,7 @@ const linkText = (m) => m.linkText || '访问个人网站'
       <header class="page-hero">
         <p class="page-label">FRIENDLY LINKS</p>
         <h1>友情<span class="highlight">链接</span></h1>
-        <p class="page-desc">与我们携手共进的伙伴们</p>
+        <p class="page-desc">一些值得探索的网站与交流入口</p>
       </header>
 
       <template v-if="loading">
@@ -38,42 +33,9 @@ const linkText = (m) => m.linkText || '访问个人网站'
       </template>
 
       <template v-else>
-        <!-- 官方友链 -->
+        <!-- 个人网站 -->
         <section class="block">
-          <h2 class="section-label"><i class="fas fa-university"></i> 官方友链</h2>
-          <div class="official-grid">
-            <article
-              v-for="(o, i) in links.official"
-              :key="o.name"
-              v-reveal="'fade-up'"
-              :style="{ '--reveal-index': i }"
-              class="official-card"
-            >
-              <div class="official-icon">
-                <img :src="o.icon" :alt="o.name" />
-              </div>
-              <div class="official-body">
-                <h3>{{ o.name }}</h3>
-                <p>{{ o.desc }}</p>
-                <div class="official-actions">
-                  <a v-if="o.website" :href="o.website" class="link-btn" target="_blank" rel="noreferrer">
-                    访问网站 <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                  </a>
-                  <button v-if="o.qrCode" class="toggle-btn" @click="toggle(o.name)">
-                    {{ opened[o.name] ? '收起二维码' : '展开二维码' }}
-                  </button>
-                </div>
-                <div v-if="o.qrCode" v-show="opened[o.name]" class="qr-code">
-                  <img :src="o.qrCode" :alt="`${o.name} 招新群二维码`" />
-                </div>
-              </div>
-            </article>
-          </div>
-        </section>
-
-        <!-- 成员个人网站 -->
-        <section class="block">
-          <h2 class="section-label"><i class="fas fa-users"></i> 成员个人网站</h2>
+          <h2 class="section-label"><i class="fas fa-users"></i> 个人网站</h2>
           <div class="member-grid">
             <a
               v-for="(m, i) in links.members"
@@ -108,7 +70,7 @@ const linkText = (m) => m.linkText || '访问个人网站'
             </div>
             <div class="apply-card">
               <h3><i class="fas fa-address-book"></i> 联系方式</h3>
-              <p class="apply-intro">如果您希望与我们建立友情链接，请通过以下方式联系我们：</p>
+              <p class="apply-intro">想交换友链或聊聊技术？欢迎通过以下方式联系：</p>
               <div class="contact-grid">
                 <div v-for="c in links.apply.contacts" :key="c.name" class="contact-person">
                   <h4>{{ c.name }}</h4>
@@ -316,7 +278,7 @@ const linkText = (m) => m.linkText || '访问个人网站'
   box-shadow: 0 4px 16px rgba(0,0,0,0.06);
 }
 
-/* ── 成员个人网站 ── */
+/* ── 个人网站 ── */
 .member-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);

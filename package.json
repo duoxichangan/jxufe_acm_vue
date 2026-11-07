@@ -2,7 +2,7 @@
   "name": "jxufe-acm-vue",
   "version": "0.1.0",
   "private": true,
-  "description": "江西财经大学程序设计竞赛协会官网 - Vue 迁移版",
+  "description": "代码与日常 - 学习与交流记录",
   "type": "module",
   "scripts": {
     "predev": "node scripts/gen_group_wall.mjs && node scripts/gen_event_badges.mjs",

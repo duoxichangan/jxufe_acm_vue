@@ -20,7 +20,7 @@ export const HONOR_TYPE_LABELS = {
   destination: '毕业去向',
   honor: '个人荣誉 / 职位',
   contact: '联系方式',
-  leader: '会长身份',
+  leader: '人物标签',
   more: '更多荣誉',
 }
 

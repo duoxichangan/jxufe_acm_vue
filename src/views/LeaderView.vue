@@ -79,9 +79,9 @@ const list = computed(() =>
     <div class="container leader-inner">
       <!-- 标题区 -->
       <header class="page-hero">
-        <p class="page-label">ASSOCIATION LEADERS</p>
-        <h1>协会<span class="highlight">负责人</span></h1>
-        <p class="page-desc">这故事开始一个人，我认真写成了我们</p>
+        <p class="page-label">VOICES & STORIES</p>
+        <h1>人物<span class="highlight">寄语</span></h1>
+        <p class="page-desc">把相遇的故事，留在字里行间。</p>
       </header>
 
       <!-- 荣誉显示方式（会长 2026-09-23）：与优秀成员页同一份偏好，切换在这里改、
@@ -109,7 +109,7 @@ const list = computed(() =>
 
       <!-- 空名单：请求成功但一条都没有 —— 与「加载失败」分开说，
            否则页面是一片空白，看不出是没数据还是没加载（其他页也各有各的判据，见审查记录） -->
-      <p v-else-if="!list.length" class="hint">暂无负责人信息</p>
+      <p v-else-if="!list.length" class="hint">暂无人物信息</p>
 
       <!-- 负责人列表 -->
       <div v-else class="leader-grid">

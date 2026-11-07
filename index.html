@@ -9,7 +9,9 @@
     />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <title>程序设计竞赛协会</title>
+    <title>代码与日常</title>
+    <meta name="description" content="一个记录个人学习、技术探索、项目实践与日常生活的博客，也分享朋友们的故事。" />
+    <link rel="stylesheet" href="/splash.css" />
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -22,10 +24,32 @@
       rel="stylesheet"
       href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <link rel="icon" href="/images/favicon.png" type="image/x-icon" />
+    <link rel="icon" href="/images/favicon.png" type="image/png" />
   </head>
   <body>
-    <div id="app"></div>
+    <div id="site-splash" role="status" aria-label="正在准备页面">
+      <div class="splash-grid" aria-hidden="true"></div>
+      <div class="splash-scene">
+        <div class="splash-emblem" aria-hidden="true">
+          <div class="splash-halo"></div>
+          <div class="splash-orbit splash-orbit--blue"><i></i></div>
+          <div class="splash-orbit splash-orbit--gold"><i></i></div>
+          <div class="splash-orbit splash-orbit--red"><i></i></div>
+          <div class="splash-logo">
+            <div class="splash-pieces">
+              <img class="splash-piece splash-piece--blue" src="/images/favicon.png" width="160" height="160" alt="" fetchpriority="high" />
+              <img class="splash-piece splash-piece--gold" src="/images/favicon.png" width="160" height="160" alt="" />
+              <img class="splash-piece splash-piece--red" src="/images/favicon.png" width="160" height="160" alt="" />
+            </div><span></span>
+          </div>
+        </div>
+        <p class="splash-eyebrow">CODE · EXPLORE · LIVE</p>
+        <h2>Welcome<span>.</span></h2>
+        <p class="splash-caption">每一段代码，都有新的故事</p>
+        <div class="splash-track" aria-hidden="true"><i></i></div>
+      </div>
+    </div>
+    <noscript><style>#site-splash{display:none}</style>请启用 JavaScript 浏览本站。</noscript><div id="app"></div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

@@ -10,7 +10,7 @@
  * 输出：public/data/events/<年>.json 里的一条「多作者文章」：
  *
  *   "2026-10-2-postgraduate-share": {
- *     "title": "协会成员保研经验分享贴",
+ *     "title": "保研路上的经验分享",
  *     "date": "2026-10-02",
  *     "subtitle": "…",
  *     "authors": [ { name, group, grade, meta, final, blocks: [...] }, … ]   ← 按年级升序（见 SHARE）
@@ -53,7 +53,7 @@ const PINNED = true
 
 /** 文案兜底值（只在文件里缺这些字段时用；人写过就不动，见文件头「生成边界」） */
 const FALLBACK = {
-  title: '协会成员保研经验分享贴',
+  title: '保研路上的经验分享',
   subtitle: '潺潺流水终于穿过了群山一座座。',
   tagline: '命运的洪流不可阻挡，我的回答是向前！'
 }

@@ -91,7 +91,7 @@ export function useSectionSnap(sectionIds) {
   /** 滚轮 = 桌面。位移量取**原始** deltaY（浏览器真正会滚多少），不是阻尼后的值 ——
       吸附判据要比的是「这一格滚下去会不会露出下一部分」。deltaMode 1 = 行、2 = 页。 */
   const onWheel = (e) => {
-    if (sheetOpen()) return
+    if (sheetOpen() || document.querySelector('dialog[open]')) return
     const raw =
       e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY
     if (snapToSection(raw)) e.preventDefault()

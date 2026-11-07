@@ -47,7 +47,7 @@ const details = computed(() => recordsToDetails(props.records?.get?.(props.perso
 
 <template>
   <span
-    v-for="(d, i) in duties"
+    v-for="(d, i) in duties.filter(d => !/协会|会长/.test(d.text))"
     :key="`duty-${i}`"
     class="honor-tag honor-tag--honor"
     :title="HONOR_TYPE_LABELS.honor"
@@ -72,7 +72,7 @@ const details = computed(() => recordsToDetails(props.records?.get?.(props.perso
     </HonorPill>
   </template>
   <span
-    v-for="h in honors"
+    v-for="h in honors.filter(h => !/协会|会长/.test(h.text))"
     :key="h.text"
     class="honor-tag"
     :class="`honor-tag--${h.type}`"

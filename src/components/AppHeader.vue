@@ -54,11 +54,11 @@ onUnmounted(() => {
     <div class="container bar">
       <RouterLink to="/" class="logo" @click="menuOpen = false">
         <div class="logo-mark">
-          <img src="/images/logo.png" alt="协会logo" />
+          <img src="/images/favicon.png" alt="本站标识" />
         </div>
         <div class="logo-text">
-          <span class="logo-title">程序设计竞赛协会</span>
-          <span class="logo-sub">江西财经大学</span>
+          <span class="logo-title">代码与日常</span>
+          <span class="logo-sub">CODE & LIFE</span>
         </div>
       </RouterLink>
 

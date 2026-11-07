@@ -6,3 +6,6 @@ import { vReveal } from './directives/reveal.js'
 import './styles/index.css'
 
 createApp(App).use(router).directive('reveal', vReveal).mount('#app')
+
+import { finishStartup } from './utils/startup.js'
+finishStartup(router).catch(console.error)

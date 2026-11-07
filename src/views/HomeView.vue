@@ -179,18 +179,18 @@ const contestLogos = [
 const features = [
   {
     icon: "fa-trophy",
-    title: "竞赛培训",
-    desc: "提供系统的算法培训，包括基础数据结构、动态规划、图论等，帮助成员在各类竞赛中取得优异成绩。",
+    title: "算法学习",
+    desc: "从基础数据结构到动态规划、图论，在学习与解题中探索算法的乐趣。",
   },
   {
     icon: "fa-users",
     title: "团队协作",
-    desc: "组织校内模拟赛和团队训练，培养默契配合和高效解题能力，提升团队协作精神。",
+    desc: "记录模拟赛与团队训练中的思考，分享协作解题的经验。",
   },
   {
     icon: "fa-laptop-code",
     title: "技术交流",
-    desc: "定期举办技术分享会，拓展成员的技术视野。",
+    desc: "分享技术见闻与实践心得，在交流中拓展视野。",
   },
 ];
 
@@ -338,7 +338,7 @@ const { newsList, loading, error } = useNews();
     >
       <div class="hero-content">
         <h2>写码码，拿奖奖<br />加分分，领钱钱</h2>
-        <p>❀ 欢迎各位新同学来到江西财经大学 ❀</p>
+        <p>❀ 欢迎来到代码与日常，分享每一次探索 ❀</p>
         <div class="hero-buttons">
           <a
             ref="heroBtn"
@@ -460,12 +460,12 @@ const { newsList, loading, error } = useNews();
 
       <!-- 右侧：宗旨 + 特色 -->
       <div v-reveal="'fade-up'" class="about-content">
-        <p class="about-label">ABOUT US</p>
+        <p class="about-label">ABOUT THIS SITE</p>
         <h2 class="about-heading">
           以代码为<span class="highlight">桥梁</span><br />连接技术与未来
         </h2>
         <p class="about-desc">
-          程序设计竞赛协会旨在激励大家运用计算机编程技术和技能来解决实际问题，激发兴趣，培养团队合作意识和创新能力和挑战精神。
+          这是我的个人博客，记录学习、技术探索和日常生活，也分享朋友们的故事。愿每一次实践，都让想法离现实更近一点。
         </p>
 
         <div class="features">
@@ -511,7 +511,7 @@ const { newsList, loading, error } = useNews();
         <div class="news-header">
           <p class="news-label">LATEST NEWS</p>
           <h2 class="news-heading">
-            协会<span class="highlight">大事记</span>
+            时光<span class="highlight">记录</span>
           </h2>
         </div>
       </div>
@@ -562,10 +562,10 @@ const { newsList, loading, error } = useNews();
             <span class="nc-badge-day nc-badge-day--outline">+</span>
           </div>
           <div class="nc-body">
-            <h3 class="nc-title">查看完整大事记</h3>
-            <p class="nc-summary">浏览协会历年全部活动与获奖记录</p>
+            <h3 class="nc-title">查看完整记录</h3>
+            <p class="nc-summary">翻翻那些活动、比赛与交流的记录</p>
           </div>
-          <span class="nc-link">前往大事记 <i class="fas fa-arrow-right"></i></span>
+          <span class="nc-link">前往时光记录 <i class="fas fa-arrow-right"></i></span>
         </RouterLink>
       </div>
     </div>

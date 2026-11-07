@@ -10,11 +10,11 @@ import { footerLinks } from "../data/navigation";
         <div class="footer-brand-top">
           <img
             src="/images/favicon.png"
-            alt="程序设计竞赛协会"
+            alt="代码与日常"
             class="footer-logo"
           />
           <div>
-            <p class="footer-name">程序设计竞赛协会</p>
+            <p class="footer-name">代码与日常</p>
             <p class="footer-tagline">以代码为桥梁，连接技术与未来</p>
           </div>
         </div>
@@ -37,25 +37,16 @@ import { footerLinks } from "../data/navigation";
 
       <!-- 联系方式 + 关注 -->
       <div class="footer-col footer-contact">
-        <h4>联系我们</h4>
+        <h4>交流方式</h4>
         <p><i class="fas fa-envelope"></i>3200513041@qq.com</p>
         <p><i class="fas fa-phone"></i>19970929018</p>
-        <p><i class="fas fa-map-marker-alt"></i>江西财经大学麦庐园校区</p>
-        <!-- <a
-          href="https://www.jxufe.edu.cn/"
-          target="_blank"
-          rel="noreferrer"
-          class="footer-jxufe"
-          title="江西财经大学官网"
-        >
-          <img src="/jxufe.png" alt="江西财经大学" />
-        </a> -->
+        <p>记录代码，也记录生活</p>
       </div>
     </div>
 
     <div class="footer-bar">
       <div class="container footer-bar-inner">
-        <span>&copy; 2025 程序设计竞赛协会 版权所有</span>
+        <span>代码与日常 · 个人博客</span>
         <span class="footer-bar-sep">|</span>
         <span class="footer-beian">
           <img src="/images/police.png" alt="公安备案" class="police-icon" />

@@ -5,11 +5,11 @@
 <template>
   <div class="floating-join-button">
     <div class="btn-inner">
-      <span>加入<br />我们</span>
+      <span>交流<br />入口</span>
     </div>
     <div class="qrcode-popup">
-      <img src="/images/join_us.png" alt="招新群二维码" />
-      <p>扫码加入招新群</p>
+      <img src="/images/join_us.png" alt="原协会招新群二维码，非本站个人联系方式" />
+      <p>原协会招新群（历史入口）</p>
     </div>
   </div>
 </template>

@@ -1,3 +1,4 @@
+import { markHomeReady } from '../utils/startup.js'
 import { ref, onMounted } from 'vue'
 import { discoverYears, loadTop, loadYear } from '../utils/eventsSource.js'
 
@@ -63,6 +64,7 @@ export function useNews() {
       error.value = true
     } finally {
       loading.value = false
+      markHomeReady()
     }
   })
 

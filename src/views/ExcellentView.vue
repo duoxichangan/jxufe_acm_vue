@@ -115,8 +115,8 @@ const { containerRef } = useMasonry()
     <div class="container excellent-inner">
       <!-- 标题区 -->
       <header class="page-hero">
-        <p class="page-label">EXCELLENT MEMBERS</p>
-        <h1>优秀<span class="highlight">成员</span></h1>
+        <p class="page-label">MY FRIENDS</p>
+        <h1>我的<span class="highlight">好朋友</span></h1>
         <p class="page-desc">星光不问赶路人，时光不负有心人</p>
       </header>
 
